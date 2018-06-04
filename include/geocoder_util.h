@@ -14,10 +14,12 @@
 #include "address.h"
 
 
-typedef struct GeocoderConfiguration
+typedef struct
 {
+	bool (*gt_callback_fn) (Address *address_p, const char *uri_s);
+	const char *gt_geocoder_uri_s;
+} GeocoderTool;
 
-} GeocoderConfiguration;
 
 
 #ifdef __cplusplus
@@ -26,7 +28,7 @@ extern "C"
 #endif
 
 
-GRASSROOTS_GEOCODER_API bool DetermineGPSLocationForAddress (Address *address_p);
+GRASSROOTS_GEOCODER_API bool DetermineGPSLocationForAddress (Address *address_p, GeocoderTool *tool_p);
 
 
 GRASSROOTS_GEOCODER_LOCAL bool DetermineGPSLocationForAddressByGoogle (Address *address_p, const char *geocoder_uri_s);
