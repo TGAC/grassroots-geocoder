@@ -34,9 +34,9 @@ static bool RunGeocoderTool (GeocoderTool *tool_p, Address *address_p);
 
 static GeocoderTool *GetGecoderToolFromGrassrootsConfig (void)
 {
-	GeocoderTool *config_p = AllocateGeocoderTool ();
+	GeocoderTool *tool_p = AllocateGeocoderTool ();
 
-	if (config_p)
+	if (tool_p)
 		{
 			const json_t *geocoder_config_json_p = GetGlobalConfigValue ("geocoder");
 
@@ -51,8 +51,6 @@ static GeocoderTool *GetGecoderToolFromGrassrootsConfig (void)
 
 								if (geocoders_p)
 									{
-										const char *geocoder_uri_s = NULL;
-
 										if (json_is_array (geocoders_p))
 											{
 												const size_t size = json_array_size (geocoders_p);
@@ -65,7 +63,7 @@ static GeocoderTool *GetGecoderToolFromGrassrootsConfig (void)
 
 														if (name_s && (strcmp (name_s, value_s) == 0))
 															{
-																config_p -> gt_geocoder_uri_s = GetJSONString (geocoder_p, "uri");
+																tool_p -> gt_geocoder_uri_s = GetJSONString (geocoder_p, "uri");
 																i = size;
 															}
 														else
@@ -80,24 +78,24 @@ static GeocoderTool *GetGecoderToolFromGrassrootsConfig (void)
 
 												if (name_s && (strcmp (name_s, value_s) == 0))
 													{
-														config_p -> gt_geocoder_uri_s = GetJSONString (geocoders_p, "uri");
+														tool_p -> gt_geocoder_uri_s = GetJSONString (geocoders_p, "uri");
 													}
 											}
 
-										if (geocoder_uri_s)
+										if (tool_p -> gt_geocoder_uri_s)
 											{
 												if (strcmp (value_s, "google") == 0)
 													{
-														config_p -> gt_callback_fn = DetermineGPSLocationForAddressByGoogle;
+														tool_p -> gt_callback_fn = DetermineGPSLocationForAddressByGoogle;
 													}
 												else if (strcmp (value_s, "opencage") == 0)
 													{
-														config_p -> gt_callback_fn = DetermineGPSLocationForAddressByOpencage;
+														tool_p -> gt_callback_fn = DetermineGPSLocationForAddressByOpencage;
 													}
 
-												if (config_p -> gt_callback_fn)
+												if (tool_p -> gt_callback_fn)
 													{
-														return config_p;
+														return tool_p;
 													}
 
 											}
@@ -106,9 +104,9 @@ static GeocoderTool *GetGecoderToolFromGrassrootsConfig (void)
 
 					}		/* if (geocoder_config_json_p) */
 
-				FreeGeocoderTool (config_p);
+				FreeGeocoderTool (tool_p);
 
-		}		/* if (config_p) */
+		}		/* if (tool_p) */
 
 	return NULL;
 }

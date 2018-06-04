@@ -8,7 +8,9 @@
 #include <ctype.h>
 #include <string.h>
 
+#define ALLOCATE_GEOCODER_TAGS (1)
 #include "address.h"
+
 #include "memory_allocations.h"
 #include "string_utils.h"
 #include "streams.h"
@@ -58,7 +60,7 @@ Address *AllocateAddress (const char *town_s, const char *county_s, const char *
 													if (address_p)
 														{
 															address_p -> ad_town_s = copied_town_s;
-															address_p -> ad_county_s = copied_country_s;
+															address_p -> ad_county_s = copied_county_s;
 															address_p -> ad_country_s = copied_country_s;
 															address_p -> ad_postcode_s = copied_postcode_s;
 															address_p -> ad_country_code_s = copied_country_code_s;

@@ -30,17 +30,17 @@ typedef struct Address
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #ifdef ALLOCATE_GEOCODER_TAGS
-	#define ADDRESS_PREFIX GEOCODER_SERVICE_LOCAL
-	#define GEOCODER_VAL(x)	= x
+	#define ADDRESS_PREFIX GRASSROOTS_GEOCODER_LOCAL
+	#define ADDRESS_VAL(x)	= x
 #else
 	#define ADDRESS_PREFIX extern
-	#define GEOCODER_VAL(x)
+	#define ADDRESS_VAL(x)
 #endif
 
 #endif 		/* #ifndef DOXYGEN_SHOULD_SKIP_THIS */
 
 
-ADDRESS_PREFIX const char *AD_ADDRESS_S GEOCODER_VAL ("Address");
+ADDRESS_PREFIX const char *AD_ADDRESS_S ADDRESS_VAL ("Address");
 
 /**
  * The key for specifying an object containing the GPS coordinates
@@ -48,7 +48,7 @@ ADDRESS_PREFIX const char *AD_ADDRESS_S GEOCODER_VAL ("Address");
  *
  * @ingroup geocoder_library
  */
-ADDRESS_PREFIX const char *AD_GPS_S GEOCODER_VAL ("GPS");
+ADDRESS_PREFIX const char *AD_GPS_S ADDRESS_VAL ("GPS");
 
 
 /**
@@ -57,7 +57,7 @@ ADDRESS_PREFIX const char *AD_GPS_S GEOCODER_VAL ("GPS");
  *
  * @ingroup geocoder_library
  */
-ADDRESS_PREFIX const char *AD_POSTCODE_S GEOCODER_VAL ("Postal code");
+ADDRESS_PREFIX const char *AD_POSTCODE_S ADDRESS_VAL ("Postal code");
 
 
 /**
@@ -66,7 +66,7 @@ ADDRESS_PREFIX const char *AD_POSTCODE_S GEOCODER_VAL ("Postal code");
  *
  * @ingroup geocoder_library
  */
-ADDRESS_PREFIX const char *AD_TOWN_S GEOCODER_VAL ("Town");
+ADDRESS_PREFIX const char *AD_TOWN_S ADDRESS_VAL ("Town");
 
 
 /**
@@ -75,7 +75,7 @@ ADDRESS_PREFIX const char *AD_TOWN_S GEOCODER_VAL ("Town");
  *
  * @ingroup geocoder_library
  */
-ADDRESS_PREFIX const char *AD_COUNTY_S GEOCODER_VAL ("County");
+ADDRESS_PREFIX const char *AD_COUNTY_S ADDRESS_VAL ("County");
 
 
 /**
@@ -84,7 +84,7 @@ ADDRESS_PREFIX const char *AD_COUNTY_S GEOCODER_VAL ("County");
  *
  * @ingroup geocoder_library
  */
-ADDRESS_PREFIX const char *AD_COUNTRY_S GEOCODER_VAL ("Country");
+ADDRESS_PREFIX const char *AD_COUNTRY_S ADDRESS_VAL ("Country");
 
 
 
@@ -94,7 +94,7 @@ ADDRESS_PREFIX const char *AD_COUNTRY_S GEOCODER_VAL ("Country");
  *
  * @ingroup pathogenomics_service
  */
-ADDRESS_PREFIX const char *AD_LOCATION_S GEOCODER_VAL ("location");
+ADDRESS_PREFIX const char *AD_LOCATION_S ADDRESS_VAL ("location");
 
 
 /**
@@ -102,7 +102,7 @@ ADDRESS_PREFIX const char *AD_LOCATION_S GEOCODER_VAL ("location");
  *
  * @ingroup pathogenomics_service
  */
-ADDRESS_PREFIX const char *AD_LATITUDE_S GEOCODER_VAL ("latitude");
+ADDRESS_PREFIX const char *AD_LATITUDE_S ADDRESS_VAL ("latitude");
 
 
 /**
@@ -110,7 +110,7 @@ ADDRESS_PREFIX const char *AD_LATITUDE_S GEOCODER_VAL ("latitude");
  *
  * @ingroup pathogenomics_service
  */
-ADDRESS_PREFIX const char *AD_LONGITUDE_S GEOCODER_VAL ("longitude");
+ADDRESS_PREFIX const char *AD_LONGITUDE_S ADDRESS_VAL ("longitude");
 
 
 /**
@@ -118,7 +118,7 @@ ADDRESS_PREFIX const char *AD_LONGITUDE_S GEOCODER_VAL ("longitude");
  *
  * @ingroup pathogenomics_service
  */
-ADDRESS_PREFIX const char *AD_NORTH_EAST_LOCATION_S GEOCODER_VAL ("north_east_bound");
+ADDRESS_PREFIX const char *AD_NORTH_EAST_LOCATION_S ADDRESS_VAL ("north_east_bound");
 
 
 /**
@@ -126,7 +126,7 @@ ADDRESS_PREFIX const char *AD_NORTH_EAST_LOCATION_S GEOCODER_VAL ("north_east_bo
  *
  * @ingroup pathogenomics_service
  */
-ADDRESS_PREFIX const char *AD_SOUTH_WEST_LOCATION_S GEOCODER_VAL ("south_west_bound");
+ADDRESS_PREFIX const char *AD_SOUTH_WEST_LOCATION_S ADDRESS_VAL ("south_west_bound");
 
 
 #ifdef __cplusplus
