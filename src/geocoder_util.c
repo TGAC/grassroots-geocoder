@@ -30,6 +30,12 @@ static GeocoderTool *GetGecoderToolFromGrassrootsConfig (void);
 
 static bool RunGeocoderTool (GeocoderTool *tool_p, Address *address_p);
 
+static bool BuildGoogleURLUsingComponentsParameters (ByteBuffer *buffer_p, const Address * const address_p, CurlTool *tool_p);
+
+static bool BuildGoogleURLUsingAddressParameter (ByteBuffer *buffer_p, const Address * const address_p, CurlTool *tool_p);
+
+static int RunGoogleGeocoder (ByteBuffer *buffer_p, Address *address_p, CurlTool *tool_p);
+
 
 
 static GeocoderTool *GetGecoderToolFromGrassrootsConfig (void)
@@ -180,165 +186,48 @@ bool DetermineGPSLocationForAddressByGoogle (Address *address_p, const char *geo
 
 			if (buffer_p)
 				{
-					if (AppendStringToByteBuffer (buffer_p, geocoder_uri_s))
+					CurlTool *curl_tool_p = AllocateCurlTool (CM_MEMORY);
+
+					if (curl_tool_p)
 						{
-							bool success_flag = true;
-							bool added_query_flag = false;
-							const char *country_s = address_p -> ad_country_s;
-							const char *value_s;
-
-							/* Replace UK entries with GB */
-							if (country_s)
+							if (AppendStringToByteBuffer (buffer_p, geocoder_uri_s))
 								{
-									if (strcmp (country_s, "UK") == 0)
+									if (BuildGoogleURLUsingAddressParameter (buffer_p, address_p, curl_tool_p))
 										{
-											country_s = "GB";
-										}
-								}
+											int res = RunGoogleGeocoder (buffer_p, address_p, curl_tool_p);
 
-							/* post code */
-							if (address_p -> ad_postcode_s)
-								{
-									value_s = address_p -> ad_postcode_s;
-
-									/* remove and leading spaces */
-									while (isspace (*value_s))
-										{
-											++ value_s;
-										}
-
-									success_flag = (*value_s != '\0') && AppendStringsToByteBuffer (buffer_p, "&components=postal_code:", value_s, NULL);
-
-									/* country */
-									if (success_flag)
-										{
-											if (country_s)
+											if (res == 1)
 												{
-													if (IsValidCountryCode (country_s))
-														{
-															value_s = country_s;
-														}
-													else
-														{
-															value_s = GetCountryCodeFromName (country_s);
-														}
-
-													if (value_s)
-														{
-															success_flag = AppendStringsToByteBuffer (buffer_p, "|country:", value_s, NULL);
-														}
-
-
+													got_location_flag = true;
 												}
-
-										}		/* if (success_flag) */
-
-								}		/* if (postcode_s) */
-							else
-								{
-									/* town */
-									if (address_p -> ad_town_s)
-										{
-											success_flag = AppendStringsToByteBuffer (buffer_p, "&address=", address_p -> ad_town_s, NULL);
-											added_query_flag = true;
-										}
-
-									/* county */
-									if (success_flag)
-										{
-											if (address_p -> ad_county_s)
+											else if (res == 0)
 												{
-													if (added_query_flag)
+													ResetByteBuffer (buffer_p);
+
+													if (AppendStringToByteBuffer (buffer_p, geocoder_uri_s))
 														{
-															success_flag = AppendStringsToByteBuffer (buffer_p, ",%20", address_p -> ad_county_s, NULL);
-														}
-													else
-														{
-															success_flag = AppendStringsToByteBuffer (buffer_p, "&address=", address_p -> ad_county_s, NULL);
-															added_query_flag = true;
-														}
-												}		/* if (county_s) */
-
-										}		/* if (success_flag) */
-
-
-									/* country */
-									if (success_flag)
-										{
-											if (country_s)
-												{
-													if (IsValidCountryCode (country_s))
-														{
-															value_s = country_s;
-														}
-													else
-														{
-															value_s = GetCountryCodeFromName (country_s);
-														}
-
-													if (value_s)
-														{
-															success_flag = AppendStringsToByteBuffer (buffer_p, "&components=country:", value_s, NULL);
-														}
-												}
-										}
-
-								}
-
-							if (success_flag)
-								{
-									CurlTool *curl_tool_p = AllocateCurlTool (CM_MEMORY);
-
-									if (curl_tool_p)
-										{
-											const char *uri_s = NULL;
-
-											ReplaceCharsInByteBuffer (buffer_p, ' ', '+');
-											uri_s = GetByteBufferData (buffer_p);
-
-											if (SetUriForCurlTool (curl_tool_p, uri_s))
-												{
-													CURLcode c = RunCurlTool (curl_tool_p);
-
-													if (c == CURLE_OK)
-														{
-															const char *response_s = GetCurlToolData (curl_tool_p);
-
-															if (response_s)
+															if (BuildGoogleURLUsingComponentsParameters (buffer_p, address_p, curl_tool_p))
 																{
-																	json_error_t error;
-																	json_t *raw_res_p = NULL;
+																	res = RunGoogleGeocoder (buffer_p, address_p, curl_tool_p);
 
-																	PrintLog (STM_LEVEL_INFO, __FILE__, __LINE__, "geo response for %s\n%s\n", uri_s, response_s);
-
-																	raw_res_p = json_loads (response_s, 0, &error);
-
-																	if (raw_res_p)
+																	if (res == 1)
 																		{
-																			PrintJSONToLog (STM_LEVEL_FINE, __FILE__, __LINE__, raw_res_p, "raw: ");
-																			got_location_flag = RefineLocationDataForGoogle (address_p, raw_res_p);
-
-																			json_decref (raw_res_p);
-																		}
-																	else
-																		{
-
+																			got_location_flag = true;
 																		}
 																}
 														}
-													else
-														{
 
-														}
 												}
 
+										}
 
-											FreeCurlTool (curl_tool_p);
-										}		/* if (curl_tool_p) */
-
+								}		/* if (AppendStringToByteBuffer (buffer_p, data_p -> msd_geocoding_uri_s)) */
+							else
+								{
 								}
 
-						}		/* if (AppendStringToByteBuffer (buffer_p, data_p -> msd_geocoding_uri_s)) */
+							FreeCurlTool (curl_tool_p);
+						}		/* if (curl_tool_p) */
 
 					FreeByteBuffer (buffer_p);
 				}		/* if (buffer_p) */
@@ -349,6 +238,242 @@ bool DetermineGPSLocationForAddressByGoogle (Address *address_p, const char *geo
 	return got_location_flag;
 }
 
+
+static int RunGoogleGeocoder (ByteBuffer *buffer_p, Address *address_p, CurlTool *curl_tool_p)
+{
+	int res = -1;
+
+	const char *uri_s = NULL;
+
+	ReplaceCharsInByteBuffer (buffer_p, ' ', '+');
+	uri_s = GetByteBufferData (buffer_p);
+
+	if (SetUriForCurlTool (curl_tool_p, uri_s))
+		{
+			CURLcode c = RunCurlTool (curl_tool_p);
+
+			if (c == CURLE_OK)
+				{
+					const char *response_s = GetCurlToolData (curl_tool_p);
+
+					if (response_s)
+						{
+							json_error_t error;
+							json_t *raw_res_p = NULL;
+
+							PrintLog (STM_LEVEL_INFO, __FILE__, __LINE__, "geo response for %s\n%s\n", uri_s, response_s);
+
+							raw_res_p = json_loads (response_s, 0, &error);
+
+							if (raw_res_p)
+								{
+									/*
+									 * Get the status of the response
+									 *
+									 * 		"OK" indicates that no errors occurred; the address was successfully parsed and at least one geocode was returned.
+									 *		"ZERO_RESULTS" indicates that the geocode was successful but returned no results. This may occur if the geocoder was passed a non-existent address.
+									 *		"OVER_QUERY_LIMIT" indicates that you are over your quota.
+									 *		"REQUEST_DENIED" indicates that your request was denied.
+									 *		"INVALID_REQUEST" generally indicates that the query (address, components or latlng) is missing.
+									 * 		"UNKNOWN_ERROR" indicates that the request could not be processed due to a server error. The request may succeed if you try again.
+									 */
+									const char *status_s = GetJSONString (raw_res_p, "status");
+
+									if (status_s)
+										{
+											if (strcmp (status_s, "OK") == 0)
+												{
+													if (RefineLocationDataForGoogle (address_p, raw_res_p))
+														{
+															res = 1;
+														}
+													else
+														{
+															res = 0;
+														}
+
+												}		/* if (strcmp (status_s, "OK") == 0) */
+											else if (strcmp (status_s, "ZERO_RESULTS") == 0)
+												{
+													res = 0;
+												}		/* else if (strcmp (status_s, "ZERO_RESULTS") == 0) */
+											else if (strcmp (status_s, "OVER_QUERY_LIMIT") == 0)
+												{
+													res = -1;
+												}		/* else if (strcmp (status_s, "OVER_QUERY_LIMIT") == 0) */
+											else if (strcmp (status_s, "REQUEST_DENIED") == 0)
+												{
+													res = -1;
+												}		/* else if (strcmp (status_s, "REQUEST_DENIED") == 0) */
+											else if (strcmp (status_s, "INVALID_REQUEST") == 0)
+												{
+													res = -1;
+												}		/* else if (strcmp (status_s, "INVALID_REQUEST") == 0) */
+											else if (strcmp (status_s, "UNKNOWN_ERROR") == 0)
+												{
+													res = -1;
+												}		/* else if (strcmp (status_s, "UNKNOWN_ERROR") == 0) */
+											else
+												{
+													res = -1;
+												}
+
+										}		/* if (status_s) */
+
+
+									json_decref (raw_res_p);
+								}
+							else
+								{
+
+								}
+						}
+				}
+			else
+				{
+
+				}
+		}
+
+
+
+	return res;
+}
+
+
+static bool BuildGoogleURLUsingComponentsParameters (ByteBuffer *buffer_p, const Address * const address_p, CurlTool *tool_p)
+{
+	bool success_flag = false;
+	const char *value_s = address_p -> ad_postcode_s;
+	char *escaped_value_s = NULL;
+
+
+	/* remove any leading spaces */
+	while ( (*value_s))
+		{
+			++ value_s;
+		}
+
+	escaped_value_s = GetURLEscapedString (tool_p, value_s);
+
+	if (escaped_value_s)
+		{
+			success_flag = AppendStringsToByteBuffer (buffer_p, "&components=postal_code:", escaped_value_s, NULL);
+
+			FreeURLEscapedString (escaped_value_s);
+		}
+
+	/* country */
+	if (success_flag)
+		{
+			if (address_p -> ad_country_code_s)
+				{
+					if (IsValidCountryCode (address_p -> ad_country_code_s))
+						{
+							value_s = address_p -> ad_country_code_s;
+						}
+				}
+
+			if (!value_s)
+				{
+					value_s = GetCountryCodeFromName (address_p -> ad_country_s);
+				}
+
+			if (value_s)
+				{
+					success_flag = AppendStringsToByteBuffer (buffer_p, "|country:", value_s, NULL);
+				}
+
+		}		/* if (success_flag) */
+
+	return success_flag;
+}
+
+
+static int AddEscapedValueToByteBuffer (const char *value_s, ByteBuffer *buffer_p, CurlTool *tool_p, const char *prefix_s)
+{
+	int res = -1;
+
+	if (value_s)
+		{
+			char *escaped_value_s = GetURLEscapedString (tool_p, value_s);
+
+			if (escaped_value_s)
+				{
+					if (prefix_s)
+						{
+							res = (AppendStringsToByteBuffer (buffer_p, prefix_s, escaped_value_s, NULL)) ? 1 : -1;
+						}		/* if (prefix_s) */
+					else
+						{
+							res = (AppendStringToByteBuffer (buffer_p, escaped_value_s)) ? 1 : -1;
+						}
+
+					FreeURLEscapedString (escaped_value_s);
+				}
+		}		/* if (value_s) */
+	else
+		{
+			res = 0;
+		}
+
+	return res;
+}
+
+
+static bool BuildGoogleURLUsingAddressParameter (ByteBuffer *buffer_p, const Address * const address_p, CurlTool *tool_p)
+{
+	bool success_flag = false;
+	const char *prefix_s = "&address=";
+	int res;
+
+	/* town */
+	res = AddEscapedValueToByteBuffer (address_p -> ad_town_s, buffer_p, tool_p, prefix_s);
+
+	if (res >= 0)
+		{
+			if (res == 1)
+				{
+					prefix_s = ",%20";
+				}
+
+
+			/* county */
+			res = AddEscapedValueToByteBuffer (address_p -> ad_county_s, buffer_p, tool_p, prefix_s);
+
+			if (res >= 0)
+				{
+					const char *value_s = NULL;
+
+					if (res == 1)
+						{
+							prefix_s = ",%20";
+						}
+
+					if (address_p -> ad_country_code_s)
+						{
+							if (IsValidCountryCode (address_p -> ad_country_code_s))
+								{
+									value_s = address_p -> ad_country_code_s;
+								}
+						}
+
+					if (!value_s)
+						{
+							value_s = GetCountryCodeFromName (address_p -> ad_country_s);
+						}
+
+					if (value_s)
+						{
+							success_flag = AppendStringsToByteBuffer (buffer_p, prefix_s, value_s, NULL);
+						}
+				}
+
+		}
+
+
+	return success_flag;
+}
 
 
 bool DetermineGPSLocationForAddressByOpencage (Address *address_p, const char *geocoder_uri_s)

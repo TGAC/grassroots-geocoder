@@ -14,6 +14,7 @@
 
 typedef struct Address
 {
+	char *ad_street_s;
 	char *ad_town_s;
 	char *ad_county_s;
 	char *ad_country_s;
@@ -59,6 +60,15 @@ ADDRESS_PREFIX const char *AD_GPS_S ADDRESS_VAL ("GPS");
  */
 ADDRESS_PREFIX const char *AD_POSTCODE_S ADDRESS_VAL ("Postal code");
 
+
+/**
+ * The key for specifying an object containing the street address
+ * where the sample was collected. For example the house number and
+ * street name.
+ *
+ * @ingroup geocoder_library
+ */
+ADDRESS_PREFIX const char *AD_STREET_S ADDRESS_VAL ("Street");
 
 /**
  * The key for specifying an object containing the town
@@ -135,7 +145,7 @@ extern "C"
 #endif
 
 
-GRASSROOTS_GEOCODER_API Address *AllocateAddress (const char *town_s, const char *county_s, const char *country_s, const char *postcode_s, const char *country_code_s, const char *gps_s);
+GRASSROOTS_GEOCODER_API Address *AllocateAddress (const char *street_s, const char *town_s, const char *county_s, const char *country_s, const char *postcode_s, const char *country_code_s, const char *gps_s);
 
 
 GRASSROOTS_GEOCODER_API void FreeAddress (Address *address_p);
