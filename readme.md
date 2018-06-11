@@ -1,10 +1,10 @@
 ﻿# Geocoder library {#geocoder_library}
 
-The Geocoder library is for getting GPS coordinates from address details such as town, county, country, etc. and vice versa.
+The Geocoder library is for getting GPS coordinates from address details such as town, county, country, *etc.* and vice versa.
 
 ## Installation
 
-To build this library, you need the [grassroots core](https://github.com/TGAC/grassroots-core) and [grassroots build config](https://github.com/TGAC/grassroots-build-config) installed and configured. 
+To build this library, you need the [grassroots core](https://github.com/TGAC/grassroots-core) and [grassroots build config](https://github.com/TGAC/grassroots-build-config) modules.
 
 The files to build the Geocoder library are in the ```build/<platform>``` directory. 
 
