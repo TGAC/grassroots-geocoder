@@ -14,6 +14,7 @@
 
 typedef struct Address
 {
+	char *ad_name_s;
 	char *ad_street_s;
 	char *ad_town_s;
 	char *ad_county_s;
@@ -145,7 +146,7 @@ extern "C"
 #endif
 
 
-GRASSROOTS_GEOCODER_API Address *AllocateAddress (const char *street_s, const char *town_s, const char *county_s, const char *country_s, const char *postcode_s, const char *country_code_s, const char *gps_s);
+GRASSROOTS_GEOCODER_API Address *AllocateAddress (const char *name_s, const char *street_s, const char *town_s, const char *county_s, const char *country_s, const char *postcode_s, const char *country_code_s, const char *gps_s);
 
 
 GRASSROOTS_GEOCODER_API void FreeAddress (Address *address_p);

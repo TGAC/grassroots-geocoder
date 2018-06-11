@@ -427,48 +427,83 @@ static bool BuildGoogleURLUsingAddressParameter (ByteBuffer *buffer_p, const Add
 	const char *prefix_s = "&address=";
 	int res;
 
-	/* town */
-	res = AddEscapedValueToByteBuffer (address_p -> ad_town_s, buffer_p, tool_p, prefix_s);
-
-	if (res >= 0)
+	/* name */
+	if ((res = AddEscapedValueToByteBuffer (address_p -> ad_name_s, buffer_p, tool_p, prefix_s)) >= 0)
 		{
 			if (res == 1)
 				{
 					prefix_s = ",%20";
 				}
 
-
-			/* county */
-			res = AddEscapedValueToByteBuffer (address_p -> ad_county_s, buffer_p, tool_p, prefix_s);
-
-			if (res >= 0)
+			/* street */
+			if ((res = AddEscapedValueToByteBuffer (address_p -> ad_street_s, buffer_p, tool_p, prefix_s)) >= 0)
 				{
-					const char *value_s = NULL;
-
 					if (res == 1)
 						{
 							prefix_s = ",%20";
 						}
 
-					if (address_p -> ad_country_code_s)
+					/* town */
+					if ((res = AddEscapedValueToByteBuffer (address_p -> ad_town_s, buffer_p, tool_p, prefix_s)) >= 0)
 						{
-							if (IsValidCountryCode (address_p -> ad_country_code_s))
+							if (res == 1)
 								{
-									value_s = address_p -> ad_country_code_s;
+									prefix_s = ",%20";
 								}
+
+							/* county */
+							if ((res = AddEscapedValueToByteBuffer (address_p -> ad_county_s, buffer_p, tool_p, prefix_s)) >= 0)
+								{
+									const char *value_s = address_p -> ad_country_s;
+
+									if (res == 1)
+										{
+											prefix_s = ",%20";
+										}
+
+									if (!value_s)
+										{
+											value_s = GetCountryNameFromCode (address_p -> ad_country_code_s);
+
+											PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to get country name for code \"%s\"", address_p -> ad_country_code_s);
+										}
+
+
+									if (value_s)
+										{
+											if (AppendStringsToByteBuffer (buffer_p, prefix_s, value_s, NULL))
+												{
+													success_flag = true;
+												}
+											else
+												{
+													PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to add country name \"%s\" to buffer for REST API Address call", value_s);
+												}
+										}
+
+								}		/* if ((res = AddEscapedValueToByteBuffer (address_p -> ad_county_s, buffer_p, tool_p, prefix_s)) >= 0) */
+							else
+								{
+									PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to add county \"%s\" to buffer for REST API Address call", address_p -> ad_county_s ? address_p -> ad_county_s : "NULL");
+								}
+
+						}		/* if ((res = AddEscapedValueToByteBuffer (address_p -> ad_town_s, buffer_p, tool_p, prefix_s)) >= 0 */
+					else
+						{
+							PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to add town \"%s\" to buffer for REST API Address call", address_p -> ad_town_s ? address_p -> ad_town_s : "NULL");
 						}
 
-					if (!value_s)
-						{
-							value_s = GetCountryCodeFromName (address_p -> ad_country_s);
-						}
 
-					if (value_s)
-						{
-							success_flag = AppendStringsToByteBuffer (buffer_p, prefix_s, value_s, NULL);
-						}
+				}		/* if ((res = AddEscapedValueToByteBuffer (address_p -> ad_street_s, buffer_p, tool_p, prefix_s)) >= 0) */
+			else
+				{
+					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to add street \"%s\" to buffer for REST API Address call", address_p -> ad_street_s ? address_p -> ad_street_s : "NULL");
 				}
 
+		}		/* if ((res = AddEscapedValueToByteBuffer (address_p -> ad_name_s, buffer_p, tool_p, prefix_s)) >= 0) */
+	else
+		{
+			PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to add name \"%s\" to buffer for REST API Address call", address_p -> ad_name_s ? address_p -> ad_name_s : "NULL");
 		}
 
 

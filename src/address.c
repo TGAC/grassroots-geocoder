@@ -28,79 +28,87 @@ static bool SetCoordinateValue (Coordinate **coord_pp, const double64 latitude, 
 
 
 
-Address *AllocateAddress (const char *street_s, const char *town_s, const char *county_s, const char *country_s, const char *postcode_s, const char *country_code_s, const char *gps_s)
+Address *AllocateAddress (const char *name_s, const char *street_s, const char *town_s, const char *county_s, const char *country_s, const char *postcode_s, const char *country_code_s, const char *gps_s)
 {
 	Address *address_p = NULL;
-	char *copied_street_s = NULL;
 
-	if (CloneValidString (street_s, &copied_street_s))
+	char *copied_name_s = NULL;
+
+	if (CloneValidString (name_s, &copied_name_s))
 		{
-			char *copied_town_s = NULL;
+			char *copied_street_s = NULL;
 
-			if (CloneValidString (town_s, &copied_town_s))
+			if (CloneValidString (street_s, &copied_street_s))
 				{
-					char *copied_county_s = NULL;
+					char *copied_town_s = NULL;
 
-					if (CloneValidString (county_s, &copied_county_s))
+					if (CloneValidString (town_s, &copied_town_s))
 						{
-							char *copied_country_s = NULL;
+							char *copied_county_s = NULL;
 
-							if (CloneValidString (country_s, &copied_country_s))
+							if (CloneValidString (county_s, &copied_county_s))
 								{
-									char *copied_postcode_s = NULL;
+									char *copied_country_s = NULL;
 
-									if (CloneValidString (postcode_s, &copied_postcode_s))
+									if (CloneValidString (country_s, &copied_country_s))
 										{
-											char *copied_country_code_s = NULL;
+											char *copied_postcode_s = NULL;
 
-											if (CloneValidString (country_code_s, &copied_country_code_s))
+											if (CloneValidString (postcode_s, &copied_postcode_s))
 												{
-													char *copied_gps_s = NULL;
+													char *copied_country_code_s = NULL;
 
-													if (CloneValidString (gps_s, &copied_gps_s))
+													if (CloneValidString (country_code_s, &copied_country_code_s))
 														{
-															address_p = (Address *) AllocMemory (sizeof (Address));
+															char *copied_gps_s = NULL;
 
-															if (address_p)
+															if (CloneValidString (gps_s, &copied_gps_s))
 																{
-																	address_p -> ad_street_s = copied_street_s;
-																	address_p -> ad_town_s = copied_town_s;
-																	address_p -> ad_county_s = copied_county_s;
-																	address_p -> ad_country_s = copied_country_s;
-																	address_p -> ad_postcode_s = copied_postcode_s;
-																	address_p -> ad_country_code_s = copied_country_code_s;
-																	address_p -> ad_gps_s = copied_gps_s;
-																	address_p -> ad_gps_centre_p = NULL;
-																	address_p -> ad_gps_north_east_p = NULL;
-																	address_p -> ad_gps_south_west_p = NULL;
+																	address_p = (Address *) AllocMemory (sizeof (Address));
 
-																	return address_p;
-																}
+																	if (address_p)
+																		{
+																			address_p -> ad_name_s = copied_name_s;
+																			address_p -> ad_street_s = copied_street_s;
+																			address_p -> ad_town_s = copied_town_s;
+																			address_p -> ad_county_s = copied_county_s;
+																			address_p -> ad_country_s = copied_country_s;
+																			address_p -> ad_postcode_s = copied_postcode_s;
+																			address_p -> ad_country_code_s = copied_country_code_s;
+																			address_p -> ad_gps_s = copied_gps_s;
+																			address_p -> ad_gps_centre_p = NULL;
+																			address_p -> ad_gps_north_east_p = NULL;
+																			address_p -> ad_gps_south_west_p = NULL;
 
-															FreeCopiedString (copied_gps_s);
-														}		/* if (CloneValidString (gps_s, &copied_gps_s)) */
+																			return address_p;
+																		}
 
-													FreeCopiedString (copied_country_code_s);
-												}		/* if (CloneValidString (country_code_s, &copied_country_code_s)) */
+																	FreeCopiedString (copied_gps_s);
+																}		/* if (CloneValidString (gps_s, &copied_gps_s)) */
 
-
-											FreeCopiedString (copied_postcode_s);
-										}		/* if (CloneValidString (postcode_s, &copied_postcode_s)) */
-
-
-									FreeCopiedString (copied_country_s);
-								}		/* if (CloneValidString (country_s, &copied_country_s)) */
+															FreeCopiedString (copied_country_code_s);
+														}		/* if (CloneValidString (country_code_s, &copied_country_code_s)) */
 
 
-							FreeCopiedString (copied_county_s);
-						}		/* if (CloneValidString (county_s, &copied_county_s)) */
+													FreeCopiedString (copied_postcode_s);
+												}		/* if (CloneValidString (postcode_s, &copied_postcode_s)) */
 
 
-					FreeCopiedString (copied_town_s);
-				}		/* if (CloneValidString (town_s, &copied_town_s)) */
+											FreeCopiedString (copied_country_s);
+										}		/* if (CloneValidString (country_s, &copied_country_s)) */
 
-			FreeCopiedString (copied_street_s);
-		}		/* if (CloneValidString (street_s, &copied_street_s)) */
+
+									FreeCopiedString (copied_county_s);
+								}		/* if (CloneValidString (county_s, &copied_county_s)) */
+
+
+							FreeCopiedString (copied_town_s);
+						}		/* if (CloneValidString (town_s, &copied_town_s)) */
+
+					FreeCopiedString (copied_street_s);
+				}		/* if (CloneValidString (street_s, &copied_street_s)) */
+
+		}		/* if (CloneValidString (name_s, &copied_name_s */
 
 	return NULL;
 }
@@ -122,6 +130,7 @@ void ClearAddress (Address *address_p)
 	FreeCopiedString (address_p -> ad_postcode_s);
 	FreeCopiedString (address_p -> ad_town_s);
 	FreeCopiedString (address_p -> ad_street_s);
+	FreeCopiedString (address_p -> ad_name_s);
 
 	if (address_p -> ad_gps_centre_p)
 		{
@@ -211,6 +220,11 @@ bool ParseAddressForSchemaOrg (const Address *address_p, json_t *values_p, const
 				{
 					if (json_object_set_new (postal_address_p, "@type", json_string ("PostalAddress")) == 0)
 						{
+							if (AddValidJSONField (postal_address_p, "name", address_p -> ad_name_s))
+								{
+									success_flag = true;
+								}
+
 							if (AddValidJSONField (postal_address_p, "streetAddress", address_p -> ad_street_s))
 								{
 									success_flag = true;
