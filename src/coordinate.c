@@ -5,11 +5,11 @@
  *      Author: billy
  */
 
-
+#define ALLOCATE_COORDINATE_TAGS (1)
 #include "coordinate.h"
 #include "memory_allocations.h"
 #include "streams.h"
-
+#include "json_util.h"
 
 
 Coordinate *AllocateCoordinate (double64 x, double64 y)
@@ -50,6 +50,31 @@ bool AddCoordinateToJSON (const Coordinate *coord_p, json_t *dest_p, const char 
 }
 
 
+bool SetCoordinateFromJSON (Coordinate *coord_p, const json_t *value_p)
+{
+	bool success_flag = false;
+	double latitude;
+
+	if (GetJSONReal (value_p, CO_LATITUDE_S, &latitude))
+		{
+			double longitude;
+
+			if (GetJSONReal (value_p, CO_LONGITUDE_S, &longitude))
+				{
+					coord_p -> po_x = latitude;
+					coord_p -> po_y = longitude;
+
+					success_flag = true;
+				}
+
+		}		/* if (location_p) */
+
+
+	return success_flag;
+}
+
+
+
 json_t *GetCoordinateAsJSON (const Coordinate * const coord_p)
 {
 	json_t *coord_json_p = json_object ();
@@ -60,9 +85,9 @@ json_t *GetCoordinateAsJSON (const Coordinate * const coord_p)
 
 			if (json_object_set_new (coord_json_p, "@type", json_string (TYPE_S)) == 0)
 				{
-					if (json_object_set_new (coord_json_p, "latitude", json_real (coord_p -> po_x)) == 0)
+					if (json_object_set_new (coord_json_p, CO_LATITUDE_S, json_real (coord_p -> po_x)) == 0)
 						{
-							if (json_object_set_new (coord_json_p, "longitude", json_real (coord_p -> po_y)) == 0)
+							if (json_object_set_new (coord_json_p, CO_LATITUDE_S, json_real (coord_p -> po_y)) == 0)
 								{
 									return coord_json_p;
 								}		/* if (json_object_set_new (coord_json_p, "longitude", json_real (coord_p -> po_y)) == 0) */

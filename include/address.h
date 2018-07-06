@@ -108,20 +108,6 @@ ADDRESS_PREFIX const char *AD_COUNTRY_S ADDRESS_VAL ("Country");
 ADDRESS_PREFIX const char *AD_LOCATION_S ADDRESS_VAL ("location");
 
 
-/**
- * The key for the latitude of for a location object for a given record.
- *
- * @ingroup pathogenomics_service
- */
-ADDRESS_PREFIX const char *AD_LATITUDE_S ADDRESS_VAL ("latitude");
-
-
-/**
- * The key for the longitude of for a location object for a given record.
- *
- * @ingroup pathogenomics_service
- */
-ADDRESS_PREFIX const char *AD_LONGITUDE_S ADDRESS_VAL ("longitude");
 
 
 /**

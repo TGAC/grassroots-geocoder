@@ -33,6 +33,38 @@ typedef struct
 } Coordinate;
 
 
+
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#ifdef ALLOCATE_COORDINATE_TAGS
+	#define COORDINATE_PREFIX GRASSROOTS_GEOCODER_LOCAL
+	#define COORDINATE_VAL(x)	= x
+#else
+	#define COORDINATE_PREFIX extern
+	#define COORDINATE_VAL(x)
+#endif
+
+#endif 		/* #ifndef DOXYGEN_SHOULD_SKIP_THIS */
+
+
+
+/**
+ * The key for the latitude of for a location object for a given record.
+ *
+ * @ingroup pathogenomics_service
+ */
+COORDINATE_PREFIX const char *CO_LATITUDE_S COORDINATE_VAL ("latitude");
+
+
+/**
+ * The key for the longitude of for a location object for a given record.
+ *
+ * @ingroup pathogenomics_service
+ */
+COORDINATE_PREFIX const char *CO_LONGITUDE_S COORDINATE_VAL ("longitude");
+
+
+
 #ifdef __cplusplus
 extern "C"
 {
@@ -51,6 +83,8 @@ GRASSROOTS_GEOCODER_API json_t *GetCoordinateAsJSON (const Coordinate * const co
 
 GRASSROOTS_GEOCODER_API bool AddCoordinateToJSON (const Coordinate *coord_p, json_t *dest_p, const char * const coord_key_s);
 
+
+GRASSROOTS_GEOCODER_API bool SetCoordinateFromJSON (Coordinate *coord_p, const json_t *value_p);
 
 #ifdef __cplusplus
 }
