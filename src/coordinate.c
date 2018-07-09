@@ -87,7 +87,7 @@ json_t *GetCoordinateAsJSON (const Coordinate * const coord_p)
 				{
 					if (json_object_set_new (coord_json_p, CO_LATITUDE_S, json_real (coord_p -> po_x)) == 0)
 						{
-							if (json_object_set_new (coord_json_p, CO_LATITUDE_S, json_real (coord_p -> po_y)) == 0)
+							if (json_object_set_new (coord_json_p, CO_LONGITUDE_S, json_real (coord_p -> po_y)) == 0)
 								{
 									return coord_json_p;
 								}		/* if (json_object_set_new (coord_json_p, "longitude", json_real (coord_p -> po_y)) == 0) */

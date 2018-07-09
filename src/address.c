@@ -8,7 +8,7 @@
 #include <ctype.h>
 #include <string.h>
 
-#define ALLOCATE_GEOCODER_TAGS (1)
+#define ALLOCATE_ADDRESS_TAGS (1)
 #include "address.h"
 
 #include "memory_allocations.h"
