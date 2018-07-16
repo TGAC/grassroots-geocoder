@@ -18,8 +18,9 @@ Coordinate *AllocateCoordinate (double64 x, double64 y)
 
 	if (coord_p)
 		{
-			coord_p -> po_x = x;
-			coord_p -> po_y = y;
+			coord_p -> co_x = x;
+			coord_p -> co_y = y;
+			coord_p -> co_elevation_p = NULL;
 		}
 
 	return coord_p;
@@ -61,8 +62,22 @@ bool SetCoordinateFromJSON (Coordinate *coord_p, const json_t *value_p)
 
 			if (GetJSONReal (value_p, CO_LONGITUDE_S, &longitude))
 				{
-					coord_p -> po_x = latitude;
-					coord_p -> po_y = longitude;
+					double elevation;
+
+					coord_p -> co_x = latitude;
+					coord_p -> co_y = longitude;
+
+					if (GetJSONReal (value_p, CO_ELEVATION_S, &elevation))
+						{
+							if (SetCoordinateElevation (coord_p, elevation))
+								{
+									success_flag = true;
+								}
+							else
+								{
+									PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to set elevation to " DOUBLE64_FMT, elevation);
+								}
+						}
 
 					success_flag = true;
 				}
@@ -85,21 +100,36 @@ json_t *GetCoordinateAsJSON (const Coordinate * const coord_p)
 
 			if (json_object_set_new (coord_json_p, "@type", json_string (TYPE_S)) == 0)
 				{
-					if (json_object_set_new (coord_json_p, CO_LATITUDE_S, json_real (coord_p -> po_x)) == 0)
+					if (json_object_set_new (coord_json_p, CO_LATITUDE_S, json_real (coord_p -> co_x)) == 0)
 						{
-							if (json_object_set_new (coord_json_p, CO_LONGITUDE_S, json_real (coord_p -> po_y)) == 0)
+							if (json_object_set_new (coord_json_p, CO_LONGITUDE_S, json_real (coord_p -> co_y)) == 0)
 								{
-									return coord_json_p;
-								}		/* if (json_object_set_new (coord_json_p, "longitude", json_real (coord_p -> po_y)) == 0) */
+									bool success_flag = true;
+
+									if (coord_p -> co_elevation_p)
+										{
+											if (json_object_set_new (coord_json_p, CO_ELEVATION_S, json_real (* (coord_p -> co_elevation_p))) != 0)
+												{
+													PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, coord_json_p, "Failed to add \"%s\": \"" DOUBLE64_FMT "\"", CO_ELEVATION_S, * (coord_p -> co_elevation_p));
+													success_flag = false;
+												}
+										}
+
+									if (success_flag)
+										{
+											return coord_json_p;
+										}
+
+								}		/* if (json_object_set_new (coord_json_p, "longitude", json_real (coord_p -> co_y)) == 0) */
 							else
 								{
-									PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to add longitude to JSON");
+									PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, coord_json_p, "Failed to add \"%s\": \"" DOUBLE64_FMT "\"", CO_LONGITUDE_S, coord_p -> co_x);
 								}
 
-						}		/* if (json_object_set_new (coord_json_p, "latitude", json_real (coord_p -> po_x)) == 0) */
+						}		/* if (json_object_set_new (coord_json_p, "latitude", json_real (coord_p -> co_x)) == 0) */
 					else
 						{
-							PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to add latitude to JSON");
+							PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, coord_json_p, "Failed to add \"%s\": \"" DOUBLE64_FMT "\"", CO_LATITUDE_S, coord_p -> co_x);
 						}
 
 				}		/* if (json_object_set_new (coord_json_p, "@type", json_string ("so:GeoCoordinates")) == 0) */
@@ -117,3 +147,32 @@ json_t *GetCoordinateAsJSON (const Coordinate * const coord_p)
 
 	return NULL;
 }
+
+
+bool SetCoordinateElevation (Coordinate *coord_p, double64 elevation)
+{
+	if (! (coord_p -> co_elevation_p))
+		{
+			coord_p -> co_elevation_p = (double64 *) AllocMemory (sizeof (double64));
+
+			if (! (coord_p -> co_elevation_p))
+				{
+					return false;
+				}
+		}
+
+	* (coord_p -> co_elevation_p) = elevation;
+
+	return true;
+}
+
+
+void ClearCoordinateElevation (Coordinate *coord_p)
+{
+	if (coord_p -> co_elevation_p)
+		{
+			FreeMemory (coord_p -> co_elevation_p);
+			coord_p -> co_elevation_p = NULL;
+		}
+}
+

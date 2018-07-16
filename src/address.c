@@ -79,6 +79,7 @@ Address *AllocateAddress (const char *name_s, const char *street_s, const char *
 																			address_p -> ad_gps_centre_p = NULL;
 																			address_p -> ad_gps_north_east_p = NULL;
 																			address_p -> ad_gps_south_west_p = NULL;
+																			address_p -> ad_elevation_p = NULL;
 
 																			return address_p;
 																		}
@@ -296,8 +297,8 @@ static bool SetCoordinateValue (Coordinate **coord_pp, const double64 latitude, 
 
 	if (*coord_pp)
 		{
-			(*coord_pp) -> po_x = latitude;
-			(*coord_pp) -> po_y = longitude;
+			(*coord_pp) -> co_x = latitude;
+			(*coord_pp) -> co_y = longitude;
 		}
 	else
 		{
