@@ -14,10 +14,38 @@
 #include "address.h"
 
 
-
+/**
+ * A datatype that accesses an external geocoding provider
+ * to calculate the geographic data for an Address.
+ *
+ * This is generated automatically depending upon the configuration
+ * options set in the geocoder Grassroots configuration file.
+ * For further information,
+ * please refer to the @ref geocoder_library documentation.
+ *
+ *
+ * @ingroup geocoder_library
+ */
 typedef struct
 {
+	/**
+	 * @private
+	 * @param address_p
+	 * @param uri_s
+	 * @return
+	 */
 	bool (*gt_callback_fn) (Address *address_p, const char *uri_s);
+
+	/**
+	 * This is the URL of the geocoder service to use.
+	 *
+	 * This is set automatically depending upon the configuration
+	 * options set in the geocoder configuration file.
+	 * For further information,
+	 * please refer to the @ref geocoder_library documentation.
+	 *
+	 * @private
+	 */
 	const char *gt_geocoder_uri_s;
 } GeocoderTool;
 

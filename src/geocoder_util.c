@@ -20,6 +20,8 @@
 #include "address.h"
 #include "coordinate.h"
 #include "grassroots_config.h"
+#include "string_utils.h"
+
 
 
 static GeocoderTool *AllocateGeocoderTool (void);
@@ -90,11 +92,11 @@ static GeocoderTool *GetGecoderToolFromGrassrootsConfig (void)
 
 										if (tool_p -> gt_geocoder_uri_s)
 											{
-												if (strcmp (value_s, "google") == 0)
+												if (Stricmp (value_s, "google") == 0)
 													{
 														tool_p -> gt_callback_fn = DetermineGPSLocationForAddressByGoogle;
 													}
-												else if (strcmp (value_s, "opencage") == 0)
+												else if (Stricmp (value_s, "opencage") == 0)
 													{
 														tool_p -> gt_callback_fn = DetermineGPSLocationForAddressByOpencage;
 													}

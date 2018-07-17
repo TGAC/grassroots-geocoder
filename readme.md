@@ -1,4 +1,4 @@
-﻿# Geocoder library {#geocoder_library}
+﻿# Geocoder library {#geocoder_docs}
 
 The Geocoder library is for getting GPS coordinates from address details such as town, county, country, *etc.* and vice versa.
 
@@ -36,8 +36,13 @@ to install the library into the Grassroots system where it will be available for
 
 The configuration options for this library are specified in the global configuration file ```grassroots.config``` in the value associated with the ```geocoder``` key. It has an array of geocoder configuration details specified by the ```geocoders``` key. Each one of these consists of two entries:
 
- * ***name***: The name to use for this geocoder. Currently there are two available options; one supplied by Google and the other by Opencage.
- * ***uri***: This is the web address to call to get the geocoding details. You will need to get an API key from the appropriate vendor and assign its value to the key parameter in this address. 
+ * ***name***: The name to use for this geocoder. Currently there are two available options; 
+     * ***google***: 
+     * ***opencage***: 
+
+ * ***uri***: This is the web address to call to get the geocoding details. These *uri* values  are vendor-dependent and you will need to get an API key from the appropriate vendor and assign its value to the key parameter in this address.
+     * ***google***: Go to [Google Geocoding API Key](https://developers.google.com/maps/documentation/geocoding/get-api-key "") to register for an API key.
+     * ***opencage***: Go to [OpenCage Geocoder API](https://opencagedata.com/api "") to register for an API key.
 
 
 The other key is ```default_geocoder``` and the associated value needs to be one of the names of the entries in the ```geocoders``` array. 
@@ -54,6 +59,27 @@ An example configuration section is shown below with ```<api key>``` being where
 	}, {
 		"name": "opencage",
 		"uri": "http://api.opencagedata.com/geocode/v1/json?pretty=1&key=<api key>"
+	}],
+  }
+...
+
+}
+~~~
+
+
+So, for example, if your Google Geocoding API Key is *123Google* and your OpenCage key is *456OpenCage*, and you wanted to use the Google Geocoder by default, then the config would be: 
+
+
+~~~{json}
+{
+  "geocoder": {
+	"default_geocoder": "google",
+	"geocoders": [{
+		"name": "google",
+		"uri": "https://maps.googleapis.com/maps/api/geocode/json?sensor=false&key=123Google"
+	}, {
+		"name": "opencage",
+		"uri": "http://api.opencagedata.com/geocode/v1/json?pretty=1&key=456OpenCage"
 	}],
   }
 ...
