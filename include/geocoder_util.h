@@ -21,7 +21,7 @@
  * This is generated automatically depending upon the configuration
  * options set in the geocoder Grassroots configuration file.
  * For further information,
- * please refer to the @ref geocoder_library documentation.
+ * please refer to the @ref geocoder_docs documentation.
  *
  *
  * @ingroup geocoder_library

@@ -1,4 +1,4 @@
-﻿# Geocoder library {#geocoder_docs}
+﻿# Geocoder library {#geocoder_guide}
 
 The Geocoder library is for getting GPS coordinates from address details such as town, county, country, *etc.* and vice versa.
 
@@ -36,13 +36,13 @@ to install the library into the Grassroots system where it will be available for
 
 The configuration options for this library are specified in the global configuration file ```grassroots.config``` in the value associated with the ```geocoder``` key. It has an array of geocoder configuration details specified by the ```geocoders``` key. Each one of these consists of two entries:
 
- * ***name***: The name to use for this geocoder. Currently there are two available options; 
-     * ***google***: 
-     * ***opencage***: 
+ * **name**: The name to use for this geocoder. Currently there are two available options; 
+     * **google**: 
+     * **opencage**: 
 
- * ***uri***: This is the web address to call to get the geocoding details. These *uri* values  are vendor-dependent and you will need to get an API key from the appropriate vendor and assign its value to the key parameter in this address.
-     * ***google***: Go to [Google Geocoding API Key](https://developers.google.com/maps/documentation/geocoding/get-api-key "") to register for an API key.
-     * ***opencage***: Go to [OpenCage Geocoder API](https://opencagedata.com/api "") to register for an API key.
+ * **uri**: This is the web address to call to get the geocoding details. These *uri* values  are vendor-dependent and you will need to get an API key from the appropriate vendor and assign its value to the key parameter in this address.
+     * **google**: Go to [Google Geocoding API](https://developers.google.com/maps/documentation/geocoding/get-api-key "") documentation sto register for an API key.
+     * **opencage**: Go to [OpenCage Geocoder API](https://opencagedata.com/api "") documentation to register for an API key.
 
 
 The other key is ```default_geocoder``` and the associated value needs to be one of the names of the entries in the ```geocoders``` array. 
