@@ -87,6 +87,8 @@ typedef struct Address
 	 * This can be <code>NULL</code> if it has not yet been calculated
 	 */
 	Coordinate *ad_gps_south_west_p;
+
+	double64 *ad_elevation_p;
 } Address;
 
 
