@@ -159,6 +159,10 @@ GRASSROOTS_GEOCODER_API bool AddCoordinateToJSON (const Coordinate *coord_p, jso
 GRASSROOTS_GEOCODER_API bool SetCoordinateFromJSON (Coordinate *coord_p, const json_t *value_p);
 
 
+
+GRASSROOTS_GEOCODER_API bool SetCoordinateFromCompoundJSON (Coordinate *coord_p, const json_t *value_p, const char * const coord_key_s);
+
+
 /**
  * Set the elevation for a given Coordinate.
  *

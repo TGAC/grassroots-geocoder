@@ -51,6 +51,21 @@ bool AddCoordinateToJSON (const Coordinate *coord_p, json_t *dest_p, const char 
 }
 
 
+bool SetCoordinateFromCompoundJSON (Coordinate *coord_p, const json_t *value_p, const char * const coord_key_s)
+{
+	bool success_flag = false;
+	const json_t *coord_json_p = json_object_get (value_p, coord_key_s);
+
+	if (coord_json_p)
+		{
+			success_flag = SetCoordinateFromJSON (coord_p, coord_json_p);
+		}
+
+	return success_flag;
+}
+
+
+
 bool SetCoordinateFromJSON (Coordinate *coord_p, const json_t *value_p)
 {
 	bool success_flag = false;

@@ -21,10 +21,24 @@
 #include "json_util.h"
 
 
+/*
+ * These are the field names for the schema.org PostalAddress
+ *
+ * https://schema.org/PostalAddress
+ */
+static const char * const S_POSTAL_ADDRESS_S = "PostalAddress";
+static const char * const S_POSTAL_ADDRESS_NAME_S = "name";
+static const char * const S_POSTAL_ADDRESS_STREET__S = "streetAddress";
+static const char * const S_POSTAL_ADDRESS_LOCALITY_S = "addressLocality";
+static const char * const S_POSTAL_ADDRESS_REGION_S = "addressRegion";
+static const char * const S_POSTAL_ADDRESS_COUNTRY_S = "addressCountry";
+static const char * const S_POSTAL_ADDRESS_POSTCODE_S = "postalCode";
+
+
 static bool AddValidJSONField (json_t *json_p, const char *key_s, const char *value_s);
 
-static bool SetCoordinateValue (Coordinate **coord_pp, const double64 latitude, const double64 longitude);
 
+static bool SetCoordinateValue (Coordinate **coord_pp, const double64 latitude, const double64 longitude, const double64 *elevation_p);
 
 
 
@@ -206,6 +220,40 @@ bool ConvertAddressToJSON (const Address *address_p, json_t *dest_p)
 
 
 
+Address *GetAddressFromJSON (const json_t *address_json_p)
+{
+	Coordinate centre_coord;
+
+	if (SetCoordinateFromCompoundJSON (&centre_coord, address_json_p, AD_LOCATION_S))
+		{
+			Coordinate ne_coord;
+
+			if (SetCoordinateFromCompoundJSON (&ne_coord, address_json_p, AD_NORTH_EAST_LOCATION_S))
+				{
+					Coordinate sw_coord;
+
+					if (SetCoordinateFromCompoundJSON (&sw_coord, address_json_p, AD_SOUTH_WEST_LOCATION_S))
+						{
+							Address *address_p = ParseSchemaOrgAddress (address_json_p, AD_ADDRESS_S);
+
+							if (address_p)
+								{
+									if (SetAddressCentreCoordinate (address_p, centre_coord.co_x,  centre_coord.co_y, NULL))
+										{
+
+										}
+
+								}		/* if (address_p) */
+
+						}		/* if (SetCoordinateFromCompoundJSON (&sw_coord, address_json_p, AD_SOUTH_WEST_LOCATION_S)) */
+
+				}		/* if (SetCoordinateFromCompoundJSON (&ne_coord, address_json_p, AD_NORTH_EAST_LOCATION_S)) */
+
+		}		/* if (SetCoordinateFromCompoundJSON (&centre_coord, address_json_p, AD_LOCATION_S)) */
+
+	return NULL;
+}
+
 
 bool ParseAddressForSchemaOrg (const Address *address_p, json_t *values_p, const char *address_key_s)
 {
@@ -219,34 +267,34 @@ bool ParseAddressForSchemaOrg (const Address *address_p, json_t *values_p, const
 
 			if (postal_address_p)
 				{
-					if (json_object_set_new (postal_address_p, "@type", json_string ("PostalAddress")) == 0)
+					if (json_object_set_new (postal_address_p, "@type", json_string (S_POSTAL_ADDRESS_S)) == 0)
 						{
-							if (AddValidJSONField (postal_address_p, "name", address_p -> ad_name_s))
+							if (AddValidJSONField (postal_address_p, S_POSTAL_ADDRESS_NAME_S, address_p -> ad_name_s))
 								{
 									success_flag = true;
 								}
 
-							if (AddValidJSONField (postal_address_p, "streetAddress", address_p -> ad_street_s))
+							if (AddValidJSONField (postal_address_p, S_POSTAL_ADDRESS_STREET__S, address_p -> ad_street_s))
 								{
 									success_flag = true;
 								}
 
-							if (AddValidJSONField (postal_address_p, "addressLocality", address_p -> ad_town_s))
+							if (AddValidJSONField (postal_address_p, S_POSTAL_ADDRESS_LOCALITY_S, address_p -> ad_town_s))
 								{
 									success_flag = true;
 								}
 
-							if (AddValidJSONField (postal_address_p, "addressRegion", address_p -> ad_county_s))
+							if (AddValidJSONField (postal_address_p, S_POSTAL_ADDRESS_REGION_S, address_p -> ad_county_s))
 								{
 									success_flag = true;
 								}
 
-							if (AddValidJSONField (postal_address_p, "addressCountry", address_p -> ad_country_s))
+							if (AddValidJSONField (postal_address_p, S_POSTAL_ADDRESS_COUNTRY_S, address_p -> ad_country_s))
 								{
 									success_flag = true;
 								}
 
-							if (AddValidJSONField (postal_address_p, "postalCode", address_p -> ad_postcode_s))
+							if (AddValidJSONField (postal_address_p, S_POSTAL_ADDRESS_POSTCODE_S, address_p -> ad_postcode_s))
 								{
 									success_flag = true;
 								}
@@ -270,27 +318,76 @@ bool ParseAddressForSchemaOrg (const Address *address_p, json_t *values_p, const
 }
 
 
-bool SetAddressCentreCoordinate (Address *address_p, const double64 latitude, const double64 longitude)
+
+Address *ParseSchemaOrgAddress (const json_t *values_p, const char *address_key_s)
 {
-	return SetCoordinateValue (& (address_p -> ad_gps_centre_p), latitude, longitude);
+	bool success_flag = false;
+	const json_t *postal_address_json_p = json_object_get (values_p, address_key_s);
+
+	if (postal_address_json_p)
+		{
+			const char *type_s = GetJSONString (postal_address_json_p, "@type");
+
+			if (type_s)
+				{
+					if (strcmp (type_s, S_POSTAL_ADDRESS_S) == 0)
+						{
+							Address *address_p = NULL;
+							const char *name_s = GetJSONString (postal_address_json_p, S_POSTAL_ADDRESS_NAME_S);
+							const char *street_s = GetJSONString (postal_address_json_p, S_POSTAL_ADDRESS_STREET__S);
+							const char *town_s = GetJSONString (postal_address_json_p, S_POSTAL_ADDRESS_LOCALITY_S);
+							const char *county_s = GetJSONString (postal_address_json_p, S_POSTAL_ADDRESS_REGION_S);
+							const char *country_s = GetJSONString (postal_address_json_p, S_POSTAL_ADDRESS_COUNTRY_S);
+							const char *postcode_s = GetJSONString (postal_address_json_p, S_POSTAL_ADDRESS_POSTCODE_S);
+							const char *country_code_s = NULL;
+
+							if (country_s)
+								{
+									country_code_s = GetCountryCodeFromName (country_s);
+								}
+
+							address_p = AllocateAddress (name_s, street_s, town_s, county_s, country_s, postcode_s, country_code_s, NULL);
+
+							if (address_p)
+								{
+									return address_p;
+								}		/* if (address_p) */
+
+						}		/* if (strcmp (type_s, S_POSTAL_ADDRESS_S) == 0) */
+
+				}		/* if (type_s) */
+
+		}		/* if (postal_address_json_p) */
+
+
+	return NULL;
 }
 
 
-bool SetAddressNorthEastCoordinate (Address *address_p, const double64 latitude, const double64 longitude)
+
+
+
+bool SetAddressCentreCoordinate (Address *address_p, const double64 latitude, const double64 longitude, const double64 *elevation_p)
 {
-	return SetCoordinateValue (& (address_p -> ad_gps_north_east_p), latitude, longitude);
+	return SetCoordinateValue (& (address_p -> ad_gps_centre_p), latitude, longitude, elevation_p);
 }
 
 
-bool SetAddressSouthWestCoordinate (Address *address_p, const double64 latitude, const double64 longitude)
+bool SetAddressNorthEastCoordinate (Address *address_p, const double64 latitude, const double64 longitude, const double64 *elevation_p)
 {
-	return SetCoordinateValue (& (address_p -> ad_gps_south_west_p), latitude, longitude);
+	return SetCoordinateValue (& (address_p -> ad_gps_north_east_p), latitude, longitude, elevation_p);
+}
+
+
+bool SetAddressSouthWestCoordinate (Address *address_p, const double64 latitude, const double64 longitude, const double64 *elevation_p)
+{
+	return SetCoordinateValue (& (address_p -> ad_gps_south_west_p), latitude, longitude, elevation_p);
 }
 
 
 
 
-static bool SetCoordinateValue (Coordinate **coord_pp, const double64 latitude, const double64 longitude)
+static bool SetCoordinateValue (Coordinate **coord_pp, const double64 latitude, const double64 longitude, const double64 *elevation_p)
 {
 
 	bool success_flag = true;
@@ -299,6 +396,15 @@ static bool SetCoordinateValue (Coordinate **coord_pp, const double64 latitude, 
 		{
 			(*coord_pp) -> co_x = latitude;
 			(*coord_pp) -> co_y = longitude;
+
+			if (elevation_p)
+				{
+					success_flag = SetCoordinateElevation (*coord_pp, *elevation_p);
+				}
+			else
+				{
+					ClearCoordinateElevation (*coord_pp);
+				}
 		}
 	else
 		{

@@ -243,6 +243,17 @@ GRASSROOTS_GEOCODER_API void ClearAddress (Address *address_p);
  */
 GRASSROOTS_GEOCODER_API json_t *GetAddressAsJSON (const Address *address_p);
 
+
+/**
+ * Get a new Address from a JSON representation.
+ *
+ * @param address_json_p The JSON representation of the Address to create.
+ * @return The newly-allocated Address or <code>NULL</code> upon error.
+ * @memberof Address
+ * @ingroup geocoder_library
+ */
+GRASSROOTS_GEOCODER_API Address *GetAddressFromJSON (const json_t *address_json_p);
+
 /**
  * Store the JSON-based representation of an Address in a given JSON fragment.
  *
@@ -269,6 +280,9 @@ GRASSROOTS_GEOCODER_API bool ConvertAddressToJSON (const Address *address_p, jso
 GRASSROOTS_GEOCODER_API bool ParseAddressForSchemaOrg (const Address *address_p, json_t *values_p, const char *address_key_s);
 
 
+GRASSROOTS_GEOCODER_API Address *ParseSchemaOrgAddress (const json_t *values_p, const char *address_key_s);
+
+
 /**
  * Set the Coordinate for the central point of a given address to the given
  * latitude and longitude values.
@@ -276,11 +290,14 @@ GRASSROOTS_GEOCODER_API bool ParseAddressForSchemaOrg (const Address *address_p,
  * @param address_p The Address to set the central point for.
  * @param latitude The latitude, in degrees, of the central point to set for the given Address.
  * @param longitude The longitude, in degrees, of the central point to set for the given Address.
+ * @param elevation_p A pointer to the elevation value, in metres, for the given Address. This can be
+ * <code>NULL</code> if the elevation is unknown. A copy of the value is stored so this pointer does
+ * not need to stay in scope.
  * @return <code>true</code> if the Coordinate was set successfully, <code>false</code> otherwise.
  * @memberof Address
  * @ingroup geocoder_library
  */
-GRASSROOTS_GEOCODER_API bool SetAddressCentreCoordinate (Address *address_p, const double64 latitude, const double64 longitude);
+GRASSROOTS_GEOCODER_API bool SetAddressCentreCoordinate (Address *address_p, const double64 latitude, const double64 longitude, const double64 *elevation_p);
 
 
 /**
@@ -290,11 +307,14 @@ GRASSROOTS_GEOCODER_API bool SetAddressCentreCoordinate (Address *address_p, con
  * @param address_p The Address to set the south-west bounds for.
  * @param latitude The latitude, in degrees, of the north-east bounds to set for the given Address.
  * @param longitude The longitude, in degrees, of the north-east bounds to set for the given Address.
+ * @param elevation_p A pointer to the elevation value, in metres, for the given Address. This can be
+ * <code>NULL</code> if the elevation is unknown. A copy of the value is stored so this pointer does
+ * not need to stay in scope.
  * @return <code>true</code> if the Coordinate was set successfully, <code>false</code> otherwise.
  * @memberof Address
  * @ingroup geocoder_library
  */
-GRASSROOTS_GEOCODER_API bool SetAddressNorthEastCoordinate (Address *address_p, const double64 latitude, const double64 longitude);
+GRASSROOTS_GEOCODER_API bool SetAddressNorthEastCoordinate (Address *address_p, const double64 latitude, const double64 longitude, const double64 *elevation_p);
 
 
 /**
@@ -304,11 +324,14 @@ GRASSROOTS_GEOCODER_API bool SetAddressNorthEastCoordinate (Address *address_p, 
  * @param address_p The Address to set the south-west bounds for.
  * @param latitude The latitude, in degrees, of the south-west bounds to set for the given Address.
  * @param longitude The longitude, in degrees, of the south-west bounds to set for the given Address.
+ * @param elevation_p A pointer to the elevation value, in metres, for the given Address. This can be
+ * <code>NULL</code> if the elevation is unknown. A copy of the value is stored so this pointer does
+ * not need to stay in scope.
  * @return <code>true</code> if the Coordinate was set successfully, <code>false</code> otherwise.
  * @memberof Address
  * @ingroup geocoder_library
  */
-GRASSROOTS_GEOCODER_API bool SetAddressSouthWestCoordinate (Address *address_p, const double64 latitude, const double64 longitude);
+GRASSROOTS_GEOCODER_API bool SetAddressSouthWestCoordinate (Address *address_p, const double64 latitude, const double64 longitude, const double64 *elevation_p);
 
 
 

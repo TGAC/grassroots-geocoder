@@ -178,7 +178,7 @@ bool DetermineGPSLocationForAddressByGoogle (Address *address_p, const char *geo
 
 			if (match_flag)
 				{
-					got_location_flag = SetAddressCentreCoordinate (address_p, latitude, longitude);
+					got_location_flag = SetAddressCentreCoordinate (address_p, latitude, longitude, NULL);
 				}
 
 		}		/* if (address_p -> ad_gps_s) */
@@ -732,7 +732,7 @@ bool FillInAddressFromGoogleData (Address *address_p, const json_t *google_resul
 
 							if (GetJSONReal (location_p, LONGITUDE_KEY_S, &longitude))
 								{
-									if (SetAddressCentreCoordinate (address_p, latitude, longitude))
+									if (SetAddressCentreCoordinate (address_p, latitude, longitude, NULL))
 										{
 											const json_t *viewport_p = json_object_get (geometry_p, "viewport");
 
@@ -748,7 +748,7 @@ bool FillInAddressFromGoogleData (Address *address_p, const json_t *google_resul
 																{
 																	if (GetJSONReal (corner_p, LONGITUDE_KEY_S, &longitude))
 																		{
-																			if (!SetAddressNorthEastCoordinate (address_p, latitude, longitude))
+																			if (!SetAddressNorthEastCoordinate (address_p, latitude, longitude, NULL))
 																				{
 																					PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "Failed to set north east location from %lf %lf ", latitude, longitude);
 																				}
@@ -764,7 +764,7 @@ bool FillInAddressFromGoogleData (Address *address_p, const json_t *google_resul
 																{
 																	if (GetJSONReal (corner_p, LONGITUDE_KEY_S, &longitude))
 																		{
-																			if (! (success_flag = SetAddressSouthWestCoordinate (address_p, latitude, longitude)))
+																			if (! (success_flag = SetAddressSouthWestCoordinate (address_p, latitude, longitude, NULL)))
 																				{
 																					PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "Failed to set south west location from %lf %lf ", latitude, longitude);
 																				}
