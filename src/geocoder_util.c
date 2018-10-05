@@ -100,6 +100,10 @@ static GeocoderTool *GetGecoderToolFromGrassrootsConfig (void)
 													{
 														tool_p -> gt_callback_fn = DetermineGPSLocationForAddressByOpencage;
 													}
+												else if (Stricmp (value_s, "locationiq") == 0)
+													{
+														tool_p -> gt_callback_fn = DetermineGPSLocationForAddressByLocationIQ;
+													}
 
 												if (tool_p -> gt_callback_fn)
 													{
@@ -657,6 +661,15 @@ bool DetermineGPSLocationForAddressByOpencage (Address *address_p, const char *g
 	return got_location_flag;
 }
 
+
+
+
+bool DetermineGPSLocationForAddressByLocationIQ (Address *address_p, const char *geocoder_uri_s)
+{
+	bool success_flag = false;
+
+	return success_flag;
+}
 
 
 bool RefineLocationDataForGoogle (Address *address_p, const json_t *raw_google_data_p)

@@ -73,6 +73,9 @@ GRASSROOTS_GEOCODER_LOCAL bool DetermineGPSLocationForAddressByGoogle (Address *
 GRASSROOTS_GEOCODER_LOCAL bool DetermineGPSLocationForAddressByOpencage (Address *address_p, const char *geocoder_uri_s);
 
 
+GRASSROOTS_GEOCODER_LOCAL bool DetermineGPSLocationForAddressByLocationIQ (Address *address_p, const char *geocoder_uri_s);
+
+
 GRASSROOTS_GEOCODER_LOCAL bool RefineLocationDataForGoogle (Address *address_p, const json_t *raw_data_p);
 
 

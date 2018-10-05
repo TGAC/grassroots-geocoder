@@ -37,8 +37,10 @@ static const char * const S_POSTAL_ADDRESS_POSTCODE_S = "postalCode";
 
 static bool AddValidJSONField (json_t *json_p, const char *key_s, const char *value_s);
 
-
 static bool SetCoordinateValue (Coordinate **coord_pp, const double64 latitude, const double64 longitude, const double64 *elevation_p);
+
+static bool AddAddressComponent (ByteBuffer *buffer_p, const char *address_value_s);
+
 
 
 
@@ -164,6 +166,48 @@ void ClearAddress (Address *address_p)
 
 	memset (address_p, 0, sizeof (Address));
 }
+
+
+char *GetAddressAsString (const Address *address_p)
+{
+	char *address_s = NULL;
+	ByteBuffer *buffer_p = AllocateByteBuffer (1024);
+
+	if (buffer_p)
+		{
+			if (AddAddressComponent (buffer_p, address_p -> ad_name_s))
+				{
+					if (AddAddressComponent (buffer_p, address_p -> ad_street_s))
+						{
+							if (AddAddressComponent (buffer_p, address_p -> ad_town_s))
+								{
+									if (AddAddressComponent (buffer_p, address_p -> ad_county_s))
+										{
+											if (AddAddressComponent (buffer_p, address_p -> ad_country_s))
+												{
+													if (AddAddressComponent (buffer_p, address_p -> ad_postcode_s))
+														{
+															address_s = DetachByteBufferData (buffer_p);
+														}		/* if (AddAddressComponent (buffer_p, address_p -> ad_postcode_s)) */
+
+												}		/* if (AddAddressComponent (buffer_p, address_p -> ad_country_s)) */
+
+										}		/* if (AddAddressComponent (buffer_p, address_p -> ad_county_s)) */
+
+								}		/* if (AddAddressComponent (buffer_p, address_p -> ad_town_s)) */
+
+						}		/* if (AddAddressComponent (buffer_p, address_p -> ad_street_s)) */
+
+				}		/* if (AddAddressComponent (buffer_p, address_p -> ad_name_s)) */
+
+		}		/* if (buffer_p) */
+
+	return address_s;
+}
+
+
+
+
 
 
 json_t *GetAddressAsJSON (const Address *address_p)
@@ -433,4 +477,27 @@ static bool AddValidJSONField (json_t *json_p, const char *key_s, const char *va
 	return success_flag;
 }
 
+
+static bool AddAddressComponent (ByteBuffer *buffer_p, const char *address_value_s)
+{
+	bool success_flag = false;
+
+	if (address_value_s)
+		{
+			if (GetByteBufferSize (buffer_p) > 0)
+				{
+					success_flag = AppendStringsToByteBuffer (buffer_p, ", ", address_value_s, NULL);
+				}
+			else
+				{
+					success_flag = AppendStringToByteBuffer (buffer_p, address_value_s);
+				}
+		}		/* if (address_value_s) */
+	else
+		{
+			success_flag = true;
+		}
+
+	return success_flag;
+}
 
