@@ -244,6 +244,18 @@ GRASSROOTS_GEOCODER_API char *GetAddressAsString (const Address *address_p);
 
 
 /**
+ * Get a string represetnting an Address.
+ *
+ *
+ * @param address_p The Address to get the JSON representation for.
+ * @return The newly-allocated string representing the Address or <code>NULL</code> upon error.
+ * @memberof Address
+ * @ingroup geocoder_library
+ */
+GRASSROOTS_GEOCODER_API char *GetAddressAsDelimitedString (const Address *address_p, const char *sep_s);
+
+
+/**
  * Get the JSON representation of an Address.
  *
  * This calls ConvertAddressToJSON() on a newly-allocated JSON object.

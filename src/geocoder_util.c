@@ -38,6 +38,7 @@ static bool BuildGoogleURLUsingAddressParameter (ByteBuffer *buffer_p, const Add
 
 static int RunGoogleGeocoder (ByteBuffer *buffer_p, Address *address_p, CurlTool *tool_p);
 
+static bool SetCoordinateFromOpencage (const json_t *coords_p, Address *address_p, bool (*set_coord_fn) (Address *address_p, const double64 latitude, const double64 longitude, const double64 *elevation_p));
 
 
 static GeocoderTool *GetGecoderToolFromGrassrootsConfig (void)
@@ -528,133 +529,125 @@ bool DetermineGPSLocationForAddressByOpencage (Address *address_p, const char *g
 		}
 	else
 		{
-			ByteBuffer *buffer_p = AllocateByteBuffer (1024);
+			/*
+			 * For the url request, spaces are encoded as +
+			 */
+			char *address_s = GetAddressAsDelimitedString (address_p, ",+");
 
-			if (buffer_p)
+			if (address_s)
 				{
-					if (AppendStringToByteBuffer (buffer_p, geocoder_uri_s))
+					CurlTool *curl_tool_p = AllocateCurlTool (CM_MEMORY);
+
+					if (curl_tool_p)
 						{
-							bool success_flag = true;
-							bool added_query_flag = false;
+							char *uri_s = NULL;
 
-							/* town */
-							if (address_p -> ad_town_s)
+							if (address_p -> ad_country_code_s)
 								{
-									success_flag = AppendStringsToByteBuffer (buffer_p, "&query=", address_p -> ad_town_s, NULL);
-									added_query_flag = true;
+									uri_s = ConcatenateVarargsStrings (geocoder_uri_s, address_s, "&countrycode=", address_p -> ad_country_code_s, NULL);
+
+								}
+							else
+								{
+									uri_s = ConcatenateStrings (geocoder_uri_s, address_s);
 								}
 
-							/* county */
-							if (success_flag)
+							if (uri_s)
 								{
-									if (address_p -> ad_county_s)
+									if (SetUriForCurlTool (curl_tool_p, uri_s))
 										{
-											if (added_query_flag)
-												{
-													success_flag = AppendStringsToByteBuffer (buffer_p, ",%20", address_p -> ad_county_s, NULL);
-												}
-											else
-												{
-													success_flag = AppendStringsToByteBuffer (buffer_p, "&query=", address_p -> ad_county_s, NULL);
-													added_query_flag = true;
-												}
-										}		/* if (county_s) */
+											CURLcode c = RunCurlTool (curl_tool_p);
 
-								}		/* if (success_flag) */
-
-
-							/* country */
-							if (success_flag)
-								{
-									const char *country_code_s = NULL;
-
-									if (address_p -> ad_country_code_s)
-										{
-											if (IsValidCountryCode (address_p -> ad_country_code_s))
+											if (c == CURLE_OK)
 												{
-													country_code_s = address_p -> ad_country_code_s;
-												}
-											else
-												{
-													if (address_p -> ad_country_s)
+													const char *response_s = GetCurlToolData (curl_tool_p);
+
+													if (response_s)
 														{
-															country_code_s = GetCountryCodeFromName (address_p -> ad_country_s);
-														}
-												}
+															json_error_t error;
+															json_t *raw_res_p = NULL;
 
-											if (country_code_s)
-												{
-													success_flag = AppendStringsToByteBuffer (buffer_p, "&countrycode=", country_code_s, NULL);
-												}
+															PrintLog (STM_LEVEL_INFO, __FILE__, __LINE__, "geo response for %s\n%s\n", uri_s, response_s);
 
-										}
+															raw_res_p = json_loads (response_s, 0, &error);
 
-								}		/* if (success_flag) */
-
-
-							if (success_flag)
-								{
-									CurlTool *curl_tool_p = AllocateCurlTool (CM_MEMORY);
-
-									if (curl_tool_p)
-										{
-											const char *uri_s = GetByteBufferData (buffer_p);
-
-											if (SetUriForCurlTool (curl_tool_p, uri_s))
-												{
-													CURLcode c = RunCurlTool (curl_tool_p);
-
-													if (c == CURLE_OK)
-														{
-															const char *response_s = GetCurlToolData (curl_tool_p);
-
-															if (response_s)
+															if (raw_res_p)
 																{
-																	json_error_t error;
-																	json_t *raw_res_p = NULL;
+																	const json_t *results_p = json_object_get (raw_res_p, "results");
 
-																	PrintLog (STM_LEVEL_INFO, __FILE__, __LINE__, "geo response for %s\n%s\n", uri_s, response_s);
-
-																	raw_res_p = json_loads (response_s, 0, &error);
-
-																	if (raw_res_p)
+																	if (results_p)
 																		{
-																			char *dump_s = json_dumps (res_p, JSON_INDENT (2) | JSON_PRESERVE_ORDER);
+																			if (json_is_array (results_p))
+																				{
+																					size_t i = 0;
+																					const size_t size = json_array_size (results_p);
+																					bool done_flag = false;
 
-																			PrintLog (STM_LEVEL_INFO, __FILE__, __LINE__, "json:\n%s\n", dump_s);
-																			free (dump_s);
+																					while (i < size)
+																						{
+																							const json_t *result_p = json_array_get (results_p, i);
 
-																			/*
-																			res_p = data_p -> msd_refine_location_fn (data_p, raw_res_p, town_s, county_s, country_code_s);
+																							/*
+																							 * Get the centre
+																							 */
+																							if (SetCoordinateFromOpencage (json_object_get (result_p, "geometry"), address_p, SetAddressCentreCoordinate))
+																								{
+																									const json_t *bounds_p = json_object_get (result_p, "bounds");
 
-																			WipeJSON (raw_res_p);
-																			 */
+																									if (bounds_p)
+																										{
+																											if (SetCoordinateFromOpencage (json_object_get (result_p, "northeast"), address_p, SetAddressNorthEastCoordinate))
+																												{
+																													if (SetCoordinateFromOpencage (json_object_get (result_p, "southwest"), address_p, SetAddressNorthEastCoordinate))
+																														{
+																															done_flag = true;
+																														}
 
-																			/** TODO */
-																			res_p = raw_res_p;
-																		}
-																	else
-																		{
+																												}
+																										}
+																								}
 
-																		}
+																							if (done_flag)
+																								{
+																									i = size; 		/* force exit from loop */
+																								}
+																							else
+																								{
+																									++ i;
+																								}
+
+																						}		/* while (i < size) */
+
+																				}
+
+																		}		/* if (results_p) */
+
+																	json_decref (raw_res_p);
+																}		/* if (raw_res_p) */
+															else
+																{
+
 																}
-														}
-													else
-														{
 
-														}
+														}		/* if (response_s) */
+
+												}		/* if (c == CURLE_OK) */
+											else
+												{
+
 												}
 
+										}		/* if (SetUriForCurlTool (curl_tool_p, uri_s)) */
 
-											FreeCurlTool (curl_tool_p);
-										}		/* if (curl_tool_p) */
+									FreeCopiedString (uri_s);
+								}		/* if (uri_s) */
 
-								}
 
-						}		/* if (AppendStringToByteBuffer (buffer_p, data_p -> msd_geocoding_uri_s)) */
+							FreeCurlTool (curl_tool_p);
+						}		/* if (curl_tool_p) */
 
-					FreeByteBuffer (buffer_p);
-				}		/* if (buffer_p) */
+					FreeCopiedString (address_s);
+				}		/* if (address_s) */
 
 		}
 
@@ -662,6 +655,32 @@ bool DetermineGPSLocationForAddressByOpencage (Address *address_p, const char *g
 }
 
 
+
+static bool SetCoordinateFromOpencage (const json_t *coords_p, Address *address_p, bool (*set_coord_fn) (Address *address_p, const double64 latitude, const double64 longitude, const double64 *elevation_p))
+{
+	bool success_flag = false;
+
+	if (coords_p)
+		{
+			double latitude;
+
+			if (GetJSONReal (coords_p, "lat", &latitude))
+				{
+					double longitude;
+
+					if (GetJSONReal (coords_p, "lng", &longitude))
+						{
+							if (set_coord_fn (address_p, latitude, longitude, NULL))
+								{
+									success_flag = true;
+								}
+						}
+				}
+
+		}		/* if (coords_p) */
+
+	return success_flag;
+}
 
 
 bool DetermineGPSLocationForAddressByLocationIQ (Address *address_p, const char *geocoder_uri_s)

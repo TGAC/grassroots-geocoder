@@ -39,7 +39,7 @@ static bool AddValidJSONField (json_t *json_p, const char *key_s, const char *va
 
 static bool SetCoordinateValue (Coordinate **coord_pp, const double64 latitude, const double64 longitude, const double64 *elevation_p);
 
-static bool AddAddressComponent (ByteBuffer *buffer_p, const char *address_value_s);
+static bool AddAddressComponent (ByteBuffer *buffer_p, const char *address_value_s, const char *sep_s);
 
 
 
@@ -170,22 +170,28 @@ void ClearAddress (Address *address_p)
 
 char *GetAddressAsString (const Address *address_p)
 {
+	return GetAddressAsDelimitedString (address_p, ", ");
+}
+
+
+char *GetAddressAsDelimitedString (const Address *address_p, const char *sep_s)
+{
 	char *address_s = NULL;
 	ByteBuffer *buffer_p = AllocateByteBuffer (1024);
 
 	if (buffer_p)
 		{
-			if (AddAddressComponent (buffer_p, address_p -> ad_name_s))
+			if (AddAddressComponent (buffer_p, address_p -> ad_name_s, sep_s))
 				{
-					if (AddAddressComponent (buffer_p, address_p -> ad_street_s))
+					if (AddAddressComponent (buffer_p, address_p -> ad_street_s, sep_s))
 						{
-							if (AddAddressComponent (buffer_p, address_p -> ad_town_s))
+							if (AddAddressComponent (buffer_p, address_p -> ad_town_s, sep_s))
 								{
-									if (AddAddressComponent (buffer_p, address_p -> ad_county_s))
+									if (AddAddressComponent (buffer_p, address_p -> ad_county_s, sep_s))
 										{
-											if (AddAddressComponent (buffer_p, address_p -> ad_country_s))
+											if (AddAddressComponent (buffer_p, address_p -> ad_country_s, sep_s))
 												{
-													if (AddAddressComponent (buffer_p, address_p -> ad_postcode_s))
+													if (AddAddressComponent (buffer_p, address_p -> ad_postcode_s, sep_s))
 														{
 															address_s = DetachByteBufferData (buffer_p);
 														}		/* if (AddAddressComponent (buffer_p, address_p -> ad_postcode_s)) */
@@ -478,7 +484,7 @@ static bool AddValidJSONField (json_t *json_p, const char *key_s, const char *va
 }
 
 
-static bool AddAddressComponent (ByteBuffer *buffer_p, const char *address_value_s)
+static bool AddAddressComponent (ByteBuffer *buffer_p, const char *address_value_s, const char *sep_s)
 {
 	bool success_flag = false;
 
@@ -486,7 +492,7 @@ static bool AddAddressComponent (ByteBuffer *buffer_p, const char *address_value
 		{
 			if (GetByteBufferSize (buffer_p) > 0)
 				{
-					success_flag = AppendStringsToByteBuffer (buffer_p, ", ", address_value_s, NULL);
+					success_flag = AppendStringsToByteBuffer (buffer_p, sep_s, address_value_s, NULL);
 				}
 			else
 				{
