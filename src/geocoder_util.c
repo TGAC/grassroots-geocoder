@@ -529,9 +529,6 @@ bool DetermineGPSLocationForAddressByOpencage (Address *address_p, const char *g
 		}
 	else
 		{
-			/*
-			 * For the url request, spaces are encoded as +
-			 */
 			char *address_s = GetAddressAsDelimitedString (address_p, ",+");
 
 			if (address_s)
@@ -541,6 +538,11 @@ bool DetermineGPSLocationForAddressByOpencage (Address *address_p, const char *g
 					if (curl_tool_p)
 						{
 							char *uri_s = NULL;
+
+							/*
+							 * For the url request, spaces are encoded as +
+							 */
+							ReplaceChars (address_s, ' ', '+');
 
 							if (address_p -> ad_country_code_s)
 								{
@@ -593,6 +595,8 @@ bool DetermineGPSLocationForAddressByOpencage (Address *address_p, const char *g
 																							if (SetCoordinateFromOpencage (json_object_get (result_p, "geometry"), address_p, SetAddressCentreCoordinate))
 																								{
 																									const json_t *bounds_p = json_object_get (result_p, "bounds");
+
+																									got_location_flag = true;
 
 																									if (bounds_p)
 																										{

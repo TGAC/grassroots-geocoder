@@ -35,19 +35,28 @@ void FreeCoordinate (Coordinate *coord_p)
 
 bool AddCoordinateToJSON (const Coordinate *coord_p, json_t *dest_p, const char * const coord_key_s)
 {
-	json_t *json_p = GetCoordinateAsJSON (coord_p);
+	bool success_flag = false;
 
-	if (json_p)
+	if (coord_p)
 		{
-			if (json_object_set_new (dest_p, coord_key_s, json_p) == 0)
-				{
-					return true;
-				}
+			json_t *json_p = GetCoordinateAsJSON (coord_p);
 
-			json_decref (json_p);
+			if (json_p)
+				{
+					if (json_object_set_new (dest_p, coord_key_s, json_p) == 0)
+						{
+							success_flag = true;
+						}
+
+					json_decref (json_p);
+				}
+		}
+	else
+		{
+			success_flag = true;
 		}
 
-	return false;
+	return success_flag;
 }
 
 
