@@ -162,12 +162,21 @@ ADDRESS_PREFIX const char *AD_COUNTY_S ADDRESS_VAL ("County");
 ADDRESS_PREFIX const char *AD_COUNTRY_S ADDRESS_VAL ("Country");
 
 
+
 /**
  * The key for the location object for a given record.
  *
  * @ingroup geocoder_library
  */
 ADDRESS_PREFIX const char *AD_LOCATION_S ADDRESS_VAL ("location");
+
+
+/**
+ * The key for the central location object for a given record.
+ *
+ * @ingroup geocoder_library
+ */
+ADDRESS_PREFIX const char *AD_CENTRE_LOCATION_S ADDRESS_VAL ("centre");
 
 
 /**

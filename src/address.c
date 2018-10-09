@@ -240,7 +240,7 @@ bool ConvertAddressToJSON (const Address *address_p, json_t *dest_p)
 
 	if (location_p)
 		{
-			if (AddCoordinateToJSON (address_p -> ad_gps_centre_p, location_p, AD_LOCATION_S))
+			if (AddCoordinateToJSON (address_p -> ad_gps_centre_p, location_p, AD_CENTRE_LOCATION_S))
 				{
 					if (AddCoordinateToJSON (address_p -> ad_gps_north_east_p, location_p, AD_NORTH_EAST_LOCATION_S))
 						{
@@ -272,34 +272,39 @@ bool ConvertAddressToJSON (const Address *address_p, json_t *dest_p)
 
 Address *GetAddressFromJSON (const json_t *address_json_p)
 {
-	Coordinate centre_coord;
+	const json_t *coords_json_p = json_object_get (address_json_p, AD_LOCATION_S);
 
-	if (SetCoordinateFromCompoundJSON (&centre_coord, address_json_p, AD_LOCATION_S))
+	if (coords_json_p)
 		{
+			Address *address_p = NULL;
+			Coordinate centre_coord;
 			Coordinate ne_coord;
+			Coordinate sw_coord;
 
-			if (SetCoordinateFromCompoundJSON (&ne_coord, address_json_p, AD_NORTH_EAST_LOCATION_S))
+			bool centre_coord_set_flag = SetCoordinateFromCompoundJSON (&centre_coord, coords_json_p, AD_CENTRE_LOCATION_S);
+			bool ne_coord_set_flag = SetCoordinateFromCompoundJSON (&ne_coord, coords_json_p, AD_NORTH_EAST_LOCATION_S);
+			bool sw_coord_set_flag = SetCoordinateFromCompoundJSON (&sw_coord, coords_json_p, AD_SOUTH_WEST_LOCATION_S);
+
+			address_p = ParseSchemaOrgAddress (address_json_p, AD_ADDRESS_S);
+
+			if (address_p)
 				{
-					Coordinate sw_coord;
-
-					if (SetCoordinateFromCompoundJSON (&sw_coord, address_json_p, AD_SOUTH_WEST_LOCATION_S))
+					if ((!centre_coord_set_flag) || (SetAddressCentreCoordinate (address_p, centre_coord.co_x,  centre_coord.co_y, NULL)))
 						{
-							Address *address_p = ParseSchemaOrgAddress (address_json_p, AD_ADDRESS_S);
-
-							if (address_p)
+							if ((!ne_coord_set_flag) || (SetAddressCentreCoordinate (address_p, ne_coord.co_x,  ne_coord.co_y, NULL)))
 								{
-									if (SetAddressCentreCoordinate (address_p, centre_coord.co_x,  centre_coord.co_y, NULL))
+									if ((!sw_coord_set_flag) || (SetAddressCentreCoordinate (address_p, sw_coord.co_x,  sw_coord.co_y, NULL)))
 										{
-
+											return address_p;
 										}
+								}
+						}
 
-								}		/* if (address_p) */
+					FreeAddress (address_p);
+				}		/* if (address_p) */
 
-						}		/* if (SetCoordinateFromCompoundJSON (&sw_coord, address_json_p, AD_SOUTH_WEST_LOCATION_S)) */
+		}		/* if (coords_json_p) */
 
-				}		/* if (SetCoordinateFromCompoundJSON (&ne_coord, address_json_p, AD_NORTH_EAST_LOCATION_S)) */
-
-		}		/* if (SetCoordinateFromCompoundJSON (&centre_coord, address_json_p, AD_LOCATION_S)) */
 
 	return NULL;
 }
@@ -371,7 +376,6 @@ bool ParseAddressForSchemaOrg (const Address *address_p, json_t *values_p, const
 
 Address *ParseSchemaOrgAddress (const json_t *values_p, const char *address_key_s)
 {
-	bool success_flag = false;
 	const json_t *postal_address_json_p = json_object_get (values_p, address_key_s);
 
 	if (postal_address_json_p)
