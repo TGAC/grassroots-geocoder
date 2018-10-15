@@ -171,6 +171,13 @@ ADDRESS_PREFIX const char *AD_LOCATION_S ADDRESS_VAL ("location");
 
 
 /**
+ * The key for the centre of the location object for a given record.
+ *
+ * @ingroup geocoder_library
+ */
+ADDRESS_PREFIX const char *AD_CENTRE_LOCATION_S ADDRESS_VAL ("centre");
+
+/**
  * The key for the north-eastern bounds for the location object for a given record.
  *
  * @ingroup geocoder_library

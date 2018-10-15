@@ -240,7 +240,7 @@ bool ConvertAddressToJSON (const Address *address_p, json_t *dest_p)
 
 	if (location_p)
 		{
-			if (AddCoordinateToJSON (address_p -> ad_gps_centre_p, location_p, AD_LOCATION_S))
+			if (AddCoordinateToJSON (address_p -> ad_gps_centre_p, location_p, AD_CENTRE_LOCATION_S))
 				{
 					if (AddCoordinateToJSON (address_p -> ad_gps_north_east_p, location_p, AD_NORTH_EAST_LOCATION_S))
 						{
@@ -274,7 +274,7 @@ Address *GetAddressFromJSON (const json_t *address_json_p)
 {
 	Coordinate centre_coord;
 
-	if (SetCoordinateFromCompoundJSON (&centre_coord, address_json_p, AD_LOCATION_S))
+	if (SetCoordinateFromCompoundJSON (&centre_coord, address_json_p, AD_CENTRE_LOCATION_S))
 		{
 			Coordinate ne_coord;
 
