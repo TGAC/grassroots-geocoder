@@ -272,34 +272,65 @@ bool ConvertAddressToJSON (const Address *address_p, json_t *dest_p)
 
 Address *GetAddressFromJSON (const json_t *address_json_p)
 {
-	Coordinate centre_coord;
+	Address *address_p = ParseSchemaOrgAddress (address_json_p, AD_ADDRESS_S);
 
-	if (SetCoordinateFromCompoundJSON (&centre_coord, address_json_p, AD_CENTRE_LOCATION_S))
+	if (address_p)
 		{
-			Coordinate ne_coord;
+			const json_t *location_json_p = json_object_get (address_json_p, AD_LOCATION_S);
 
-			if (SetCoordinateFromCompoundJSON (&ne_coord, address_json_p, AD_NORTH_EAST_LOCATION_S))
+			if (location_json_p)
 				{
-					Coordinate sw_coord;
+					Coordinate coord;
 
-					if (SetCoordinateFromCompoundJSON (&sw_coord, address_json_p, AD_SOUTH_WEST_LOCATION_S))
+					if (SetCoordinateFromCompoundJSON (&coord, location_json_p, AD_CENTRE_LOCATION_S))
 						{
-							Address *address_p = ParseSchemaOrgAddress (address_json_p, AD_ADDRESS_S);
-
-							if (address_p)
+							if (!SetAddressCentreCoordinate (address_p, coord.co_x,  coord.co_y, NULL))
 								{
-									if (SetAddressCentreCoordinate (address_p, centre_coord.co_x,  centre_coord.co_y, NULL))
+									char *address_s = GetAddressAsString (address_p);
+
+									PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to set address centre to [" DOUBLE64_FMT ", " DOUBLE64_FMT "] for %s", coord.co_x, coord.co_y, address_s ? address_s : "NULL");
+									if (address_s)
 										{
-
+											FreeCopiedString (address_s);
 										}
+								}
+						}		/* if (SetCoordinateFromCompoundJSON (&coord, location_json_p, AD_CENTRE_LOCATION_S)) */
 
-								}		/* if (address_p) */
+					if (SetCoordinateFromCompoundJSON (&coord, location_json_p, AD_NORTH_EAST_LOCATION_S))
+						{
+							if (!SetAddressNorthEastCoordinate (address_p, coord.co_x,  coord.co_y, NULL))
+								{
+									char *address_s = GetAddressAsString (address_p);
 
-						}		/* if (SetCoordinateFromCompoundJSON (&sw_coord, address_json_p, AD_SOUTH_WEST_LOCATION_S)) */
+									PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to set address north east to [" DOUBLE64_FMT ", " DOUBLE64_FMT "] for %s", coord.co_x, coord.co_y, address_s ? address_s : "NULL");
+									if (address_s)
+										{
+											FreeCopiedString (address_s);
+										}
+								}
+						}		/* if (SetCoordinateFromCompoundJSON (&coord, location_json_p, AD_NORTH_EAST_LOCATION_S)) */
 
-				}		/* if (SetCoordinateFromCompoundJSON (&ne_coord, address_json_p, AD_NORTH_EAST_LOCATION_S)) */
 
-		}		/* if (SetCoordinateFromCompoundJSON (&centre_coord, address_json_p, AD_LOCATION_S)) */
+					if (SetCoordinateFromCompoundJSON (&coord, location_json_p, AD_SOUTH_WEST_LOCATION_S))
+						{
+							if (!SetAddressSouthWestCoordinate (address_p, coord.co_x,  coord.co_y, NULL))
+								{
+									char *address_s = GetAddressAsString (address_p);
+
+									PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to set address south west to [" DOUBLE64_FMT ", " DOUBLE64_FMT "] for %s", coord.co_x, coord.co_y, address_s ? address_s : "NULL");
+									if (address_s)
+										{
+											FreeCopiedString (address_s);
+										}
+								}
+						}		/* if (SetCoordinateFromCompoundJSON (&coord, location_json_p, AD_SOUTH_WEST_LOCATION_S)) */
+
+
+				}		/* if (location_json_p) */
+
+			return address_p;
+		}		/* if (address_p) */
+
 
 	return NULL;
 }
