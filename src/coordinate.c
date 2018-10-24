@@ -47,8 +47,10 @@ bool AddCoordinateToJSON (const Coordinate *coord_p, json_t *dest_p, const char 
 						{
 							success_flag = true;
 						}
-
-					json_decref (json_p);
+					else
+						{
+							json_decref (json_p);
+						}
 				}
 		}
 	else
