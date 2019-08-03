@@ -12,6 +12,7 @@
 #include "typedefs.h"
 #include "jansson.h"
 #include "address.h"
+#include "grassroots_server.h"
 
 
 /**
@@ -65,7 +66,7 @@ extern "C"
  * @return <code>true</code> if the GPS location was calculated successfully, <code>false</code> otherwise.
  * @ingroup geocoder_library
  */
-GRASSROOTS_GEOCODER_API bool DetermineGPSLocationForAddress (Address *address_p, GeocoderTool *tool_p);
+GRASSROOTS_GEOCODER_API bool DetermineGPSLocationForAddress (Address *address_p, GeocoderTool *tool_p, GrassrootsServer *grassroots_p);
 
 
 GRASSROOTS_GEOCODER_LOCAL bool DetermineGPSLocationForAddressByGoogle (Address *address_p, const char *geocoder_uri_s);
