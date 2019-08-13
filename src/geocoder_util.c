@@ -30,15 +30,19 @@ static void FreeGeocoderTool (GeocoderTool *config_p);
 
 static GeocoderTool *GetGecoderToolFromGrassrootsConfig (GrassrootsServer *grassroots_p);
 
-static bool RunGeocoderTool (GeocoderTool *tool_p, Address *address_p);
+static bool DoGeocoding (GeocoderTool *tool_p, Address *address_p);
+
+static bool DoReverseGeocoding (GeocoderTool *tool_p, Address *address_p);
+
 
 static bool BuildGoogleURLUsingComponentsParameters (ByteBuffer *buffer_p, const Address * const address_p, CurlTool *tool_p);
 
 static bool BuildGoogleURLUsingAddressParameter (ByteBuffer *buffer_p, const Address * const address_p, CurlTool *tool_p);
 
-static int RunGoogleGeocoder (ByteBuffer *buffer_p, Address *address_p, CurlTool *tool_p);
+static int CallGoogleGeocoderWebService (ByteBuffer *buffer_p, Address *address_p, CurlTool *tool_p);
 
 static bool SetCoordinateFromOpencage (const json_t *coords_p, Address *address_p, bool (*set_coord_fn) (Address *address_p, const double64 latitude, const double64 longitude, const double64 *elevation_p));
+
 
 
 static GeocoderTool *GetGecoderToolFromGrassrootsConfig (GrassrootsServer *grassroots_p)
@@ -95,18 +99,18 @@ static GeocoderTool *GetGecoderToolFromGrassrootsConfig (GrassrootsServer *grass
 											{
 												if (Stricmp (value_s, "google") == 0)
 													{
-														tool_p -> gt_callback_fn = DetermineGPSLocationForAddressByGoogle;
+														tool_p -> gt_geocoder_fn = RunGoogleGeocoder;
 													}
 												else if (Stricmp (value_s, "opencage") == 0)
 													{
-														tool_p -> gt_callback_fn = DetermineGPSLocationForAddressByOpencage;
+														tool_p -> gt_geocoder_fn = DetermineGPSLocationForAddressByOpencage;
 													}
 												else if (Stricmp (value_s, "locationiq") == 0)
 													{
-														tool_p -> gt_callback_fn = DetermineGPSLocationForAddressByLocationIQ;
+														tool_p -> gt_geocoder_fn = DetermineGPSLocationForAddressByLocationIQ;
 													}
 
-												if (tool_p -> gt_callback_fn)
+												if (tool_p -> gt_geocoder_fn)
 													{
 														return tool_p;
 													}
@@ -138,14 +142,34 @@ bool DetermineGPSLocationForAddress (Address *address_p, GeocoderTool *tool_p, G
 
 	if (tool_p)
 		{
-			success_flag = RunGeocoderTool (tool_p, address_p);
+			success_flag = DoGeocoding (tool_p, address_p);
 		}		/* if (config_p) */
 
 	return success_flag;
 }
 
 
-bool DetermineGPSLocationForAddressByGoogle (Address *address_p, const char *geocoder_uri_s)
+bool DetermineAddressForGPSLocation (Address *address_p, GeocoderTool *tool_p, GrassrootsServer *grassroots_p)
+{
+	bool success_flag = false;
+
+	if (!tool_p)
+		{
+			tool_p = GetGecoderToolFromGrassrootsConfig (grassroots_p);
+		}
+
+	if (tool_p)
+		{
+			success_flag = DoReverseGeocoding (tool_p, address_p);
+		}		/* if (config_p) */
+
+	return success_flag;
+}
+
+
+
+
+bool RunGoogleGeocoder (Address *address_p, const char *geocoder_uri_s)
 {
 	bool got_location_flag = false;
 
@@ -201,7 +225,7 @@ bool DetermineGPSLocationForAddressByGoogle (Address *address_p, const char *geo
 								{
 									if (BuildGoogleURLUsingAddressParameter (buffer_p, address_p, curl_tool_p))
 										{
-											int res = RunGoogleGeocoder (buffer_p, address_p, curl_tool_p);
+											int res = CallGoogleGeocoderWebService (buffer_p, address_p, curl_tool_p);
 
 											if (res == 1)
 												{
@@ -215,7 +239,7 @@ bool DetermineGPSLocationForAddressByGoogle (Address *address_p, const char *geo
 														{
 															if (BuildGoogleURLUsingComponentsParameters (buffer_p, address_p, curl_tool_p))
 																{
-																	res = RunGoogleGeocoder (buffer_p, address_p, curl_tool_p);
+																	res = CallGoogleGeocoderWebService (buffer_p, address_p, curl_tool_p);
 
 																	if (res == 1)
 																		{
@@ -246,7 +270,65 @@ bool DetermineGPSLocationForAddressByGoogle (Address *address_p, const char *geo
 }
 
 
-static int RunGoogleGeocoder (ByteBuffer *buffer_p, Address *address_p, CurlTool *curl_tool_p)
+
+bool RunGoogleReverseGeocoder (Address *address_p, const char *geocoder_uri_s)
+{
+	bool success_flag = false;
+
+	if (address_p -> ad_gps_centre_p)
+		{
+			ByteBuffer *buffer_p = AllocateByteBuffer (1024);
+
+			if (buffer_p)
+				{
+					CurlTool *curl_tool_p = AllocateCurlTool (CM_MEMORY);
+
+					if (curl_tool_p)
+						{
+							if (AppendStringToByteBuffer (buffer_p, geocoder_uri_s))
+								{
+									int res = CallGoogleGeocoderWebService (buffer_p, address_p, curl_tool_p);
+
+									if (res == 1)
+										{
+											success_flag = true;
+										}
+									else if (res == 0)
+										{
+											ResetByteBuffer (buffer_p);
+
+											if (AppendStringToByteBuffer (buffer_p, geocoder_uri_s))
+												{
+													if (BuildGoogleURLUsingComponentsParameters (buffer_p, address_p, curl_tool_p))
+														{
+															res = CallGoogleGeocoderWebService (buffer_p, address_p, curl_tool_p);
+
+															if (res == 1)
+																{
+																	success_flag = true;
+																}
+														}
+												}
+
+										}
+								}		/* if (AppendStringToByteBuffer (buffer_p, data_p -> msd_geocoding_uri_s)) */
+							else
+								{
+								}
+
+							FreeCurlTool (curl_tool_p);
+						}		/* if (curl_tool_p) */
+
+					FreeByteBuffer (buffer_p);
+				}		/* if (buffer_p) */
+
+		}		/* if (address_p -> ad_gps_centre_p) */
+
+	return success_flag;
+}
+
+
+static int CallGoogleGeocoderWebService (ByteBuffer *buffer_p, Address *address_p, CurlTool *curl_tool_p)
 {
 	int res = -1;
 
@@ -823,17 +905,31 @@ bool FillInAddressFromGoogleData (Address *address_p, const json_t *google_resul
 
 
 
-static bool RunGeocoderTool (GeocoderTool *tool_p, Address *address_p)
+static bool DoGeocoding (GeocoderTool *tool_p, Address *address_p)
 {
 	bool success_flag = false;
 
-	if ((tool_p -> gt_callback_fn) && (tool_p -> gt_geocoder_uri_s))
+	if ((tool_p -> gt_geocoder_fn) && (tool_p -> gt_geocoder_uri_s))
 		{
-			success_flag = tool_p -> gt_callback_fn (address_p, tool_p -> gt_geocoder_uri_s);
+			success_flag = tool_p -> gt_geocoder_fn (address_p, tool_p -> gt_geocoder_uri_s);
 		}
 
 	return success_flag;
 }
+
+
+static bool DoReverseGeocoding (GeocoderTool *tool_p, Address *address_p)
+{
+	bool success_flag = false;
+
+	if ((tool_p -> gt_reverse_geocoder_fn) && (tool_p -> gt_geocoder_uri_s))
+		{
+			success_flag = tool_p -> gt_reverse_geocoder_fn (address_p, tool_p -> gt_geocoder_uri_s);
+		}
+
+	return success_flag;
+}
+
 
 
 static GeocoderTool *AllocateGeocoderTool (void)
@@ -842,7 +938,7 @@ static GeocoderTool *AllocateGeocoderTool (void)
 
 	if (config_p)
 		{
-			config_p -> gt_callback_fn = NULL;
+			config_p -> gt_geocoder_fn = NULL;
 			config_p -> gt_geocoder_uri_s = NULL;
 		}
 

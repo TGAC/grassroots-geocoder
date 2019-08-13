@@ -35,7 +35,10 @@ typedef struct
 	 * @param uri_s
 	 * @return
 	 */
-	bool (*gt_callback_fn) (Address *address_p, const char *uri_s);
+	bool (*gt_geocoder_fn) (Address *address_p, const char *uri_s);
+
+
+	bool (*gt_reverse_geocoder_fn) (Address *address_p, const char *uri_s);
 
 	/**
 	 * This is the URL of the geocoder service to use.
@@ -69,7 +72,19 @@ extern "C"
 GRASSROOTS_GEOCODER_API bool DetermineGPSLocationForAddress (Address *address_p, GeocoderTool *tool_p, GrassrootsServer *grassroots_p);
 
 
-GRASSROOTS_GEOCODER_LOCAL bool DetermineGPSLocationForAddressByGoogle (Address *address_p, const char *geocoder_uri_s);
+
+/**
+ * Determine the geographic coordinates for a given Address using a given GeocoderTool.
+ *
+ * @param address_p The Address whose GPS coordinates will be used.
+ * @param tool_p The GeocoderTool used to calculate the Address for the given GPS coordinates.
+ * @return <code>true</code> if the Address was calculated successfully, <code>false</code> otherwise.
+ * @ingroup geocoder_library
+ */
+GRASSROOTS_GEOCODER_API bool DetermineAddressForGPSLocation (Address *address_p, GeocoderTool *tool_p, GrassrootsServer *grassroots_p);
+
+
+GRASSROOTS_GEOCODER_LOCAL bool RunGoogleGeocoder (Address *address_p, const char *geocoder_uri_s);
 
 GRASSROOTS_GEOCODER_LOCAL bool DetermineGPSLocationForAddressByOpencage (Address *address_p, const char *geocoder_uri_s);
 
