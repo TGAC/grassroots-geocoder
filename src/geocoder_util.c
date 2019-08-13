@@ -19,7 +19,7 @@
 #include "country_codes.h"
 #include "address.h"
 #include "coordinate.h"
-#include "grassroots_config.h"
+#include "grassroots_server.h"
 #include "string_utils.h"
 
 
@@ -28,7 +28,7 @@ static GeocoderTool *AllocateGeocoderTool (void);
 
 static void FreeGeocoderTool (GeocoderTool *config_p);
 
-static GeocoderTool *GetGecoderToolFromGrassrootsConfig (void);
+static GeocoderTool *GetGecoderToolFromGrassrootsConfig (GrassrootsServer *grassroots_p);
 
 static bool RunGeocoderTool (GeocoderTool *tool_p, Address *address_p);
 
@@ -41,13 +41,13 @@ static int RunGoogleGeocoder (ByteBuffer *buffer_p, Address *address_p, CurlTool
 static bool SetCoordinateFromOpencage (const json_t *coords_p, Address *address_p, bool (*set_coord_fn) (Address *address_p, const double64 latitude, const double64 longitude, const double64 *elevation_p));
 
 
-static GeocoderTool *GetGecoderToolFromGrassrootsConfig (void)
+static GeocoderTool *GetGecoderToolFromGrassrootsConfig (GrassrootsServer *grassroots_p)
 {
 	GeocoderTool *tool_p = AllocateGeocoderTool ();
 
 	if (tool_p)
 		{
-			const json_t *geocoder_config_json_p = GetGlobalConfigValue ("geocoder");
+			const json_t *geocoder_config_json_p = GetGlobalConfigValue (grassroots_p, "geocoder");
 
 
 				if (geocoder_config_json_p)
@@ -127,13 +127,13 @@ static GeocoderTool *GetGecoderToolFromGrassrootsConfig (void)
 
 
 
-bool DetermineGPSLocationForAddress (Address *address_p, GeocoderTool *tool_p)
+bool DetermineGPSLocationForAddress (Address *address_p, GeocoderTool *tool_p, GrassrootsServer *grassroots_p)
 {
 	bool success_flag = false;
 
 	if (!tool_p)
 		{
-			tool_p = GetGecoderToolFromGrassrootsConfig ();
+			tool_p = GetGecoderToolFromGrassrootsConfig (grassroots_p);
 		}
 
 	if (tool_p)
