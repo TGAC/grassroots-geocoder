@@ -392,7 +392,10 @@ bool ParseAddressForSchemaOrg (const Address *address_p, json_t *values_p, const
 				}
 
 		}		/* if (town_s || county_s || country_s || postcode_s) */
-
+	else
+		{
+			success_flag = true;
+		}
 
 	return success_flag;
 }

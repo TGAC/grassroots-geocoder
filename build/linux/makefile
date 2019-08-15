@@ -32,6 +32,8 @@ SRCS 	:= \
 	coordinate.c \
 	country_codes.c \
 	geocoder_util.c \
+	google.c \
+	nominatim.c
 	
 
 ifeq ($(BUILD),release)

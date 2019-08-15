@@ -41,7 +41,7 @@ typedef struct
 	bool (*gt_reverse_geocoder_fn) (Address *address_p, const char *uri_s);
 
 	/**
-	 * This is the URL of the geocoder service to use.
+	 * This is the URL of the geocoder service to use for geocoding.
 	 *
 	 * This is set automatically depending upon the configuration
 	 * options set in the geocoder configuration file.
@@ -50,7 +50,21 @@ typedef struct
 	 *
 	 * @private
 	 */
-	const char *gt_geocoder_uri_s;
+	const char *gt_geocoder_url_s;
+
+
+	/**
+	 * This is the URL of the geocoder service to use for reverse geocoding.
+	 *
+	 * This is set automatically depending upon the configuration
+	 * options set in the geocoder configuration file.
+	 * For further information,
+	 * please refer to the @ref geocoder_library documentation.
+	 *
+	 * @private
+	 */
+	const char *gt_reverse_geocoder_url_s;
+
 } GeocoderTool;
 
 
@@ -84,7 +98,6 @@ GRASSROOTS_GEOCODER_API bool DetermineGPSLocationForAddress (Address *address_p,
 GRASSROOTS_GEOCODER_API bool DetermineAddressForGPSLocation (Address *address_p, GeocoderTool *tool_p, GrassrootsServer *grassroots_p);
 
 
-GRASSROOTS_GEOCODER_LOCAL bool RunGoogleGeocoder (Address *address_p, const char *geocoder_uri_s);
 
 GRASSROOTS_GEOCODER_LOCAL bool DetermineGPSLocationForAddressByOpencage (Address *address_p, const char *geocoder_uri_s);
 
@@ -92,11 +105,8 @@ GRASSROOTS_GEOCODER_LOCAL bool DetermineGPSLocationForAddressByOpencage (Address
 GRASSROOTS_GEOCODER_LOCAL bool DetermineGPSLocationForAddressByLocationIQ (Address *address_p, const char *geocoder_uri_s);
 
 
-GRASSROOTS_GEOCODER_LOCAL bool RefineLocationDataForGoogle (Address *address_p, const json_t *raw_data_p);
 
-
-GRASSROOTS_GEOCODER_LOCAL bool FillInAddressFromGoogleData (Address *address_p, const json_t *google_result_p);
-
+GRASSROOTS_GEOCODER_LOCAL int CallGeocoderWebService (CurlTool *curl_tool_p, const char *url_s, Address *address_p, int (*parse_results_fn) (Address *address_p, const json_t *web_service_results_p));
 
 
 
