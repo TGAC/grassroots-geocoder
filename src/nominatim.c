@@ -84,18 +84,21 @@ bool RunNominatimReverseGeocoder (Address *address_p, const char *reverse_geocod
 												{
 													if (AppendStringsToByteBuffer (buffer_p, "&lon=", lon_s, NULL))
 														{
-															CurlTool *curl_p = AllocateCurlTool (CM_MEMORY);
-
-															if (curl_p)
+															if (AppendStringToByteBuffer (buffer_p, "&addressdetails=1"))
 																{
-																	const char *url_s = GetByteBufferData (buffer_p);
+																	CurlTool *curl_p = AllocateCurlTool (CM_MEMORY);
 
-																	if (CallGeocoderWebService (curl_p, url_s, address_p, PopulateAddressForNominatim))
+																	if (curl_p)
 																		{
-																			got_location_flag = true;
-																		}
+																			const char *url_s = GetByteBufferData (buffer_p);
 
-																	FreeCurlTool (curl_p);
+																			if (CallGeocoderWebService (curl_p, url_s, address_p, PopulateAddressForNominatim))
+																				{
+																					got_location_flag = true;
+																				}
+
+																			FreeCurlTool (curl_p);
+																		}
 																}
 														}
 
@@ -158,26 +161,30 @@ static int PopulateAddressForNominatim (Address *address_p, const json_t *result
 
 	if (address_json_p)
 		{
-			if (SetValidAddressComponent (address_json_p, "city", & (address_p -> ad_town_s)))
+			if (SetValidAddressComponent (address_json_p, "street", & (address_p -> ad_street_s)))
 				{
-					if (SetValidAddressComponent (address_json_p, "state_district", & (address_p -> ad_county_s)))
+					if (SetValidAddressComponent (address_json_p, "city", & (address_p -> ad_town_s)))
 						{
-							if (SetValidAddressComponent (address_json_p, "country", & (address_p -> ad_country_s)))
+							if (SetValidAddressComponent (address_json_p, "county", & (address_p -> ad_county_s)))
 								{
-									if (SetValidAddressComponent (address_json_p, "country_code", & (address_p -> ad_country_code_s)))
+									if (SetValidAddressComponent (address_json_p, "country", & (address_p -> ad_country_s)))
 										{
-											if (SetValidAddressComponent (address_json_p, "postcode", & (address_p -> ad_postcode_s)))
+											if (SetValidAddressComponent (address_json_p, "country_code", & (address_p -> ad_country_code_s)))
 												{
-													success_flag = true;
-												}		/* if (SetValidAddressComponent (address_json_p, "postcode", & (address_p -> ad_postcode_s))) */
+													if (SetValidAddressComponent (address_json_p, "postcode", & (address_p -> ad_postcode_s)))
+														{
+															success_flag = true;
+														}		/* if (SetValidAddressComponent (address_json_p, "postcode", & (address_p -> ad_postcode_s))) */
 
-										}		/* if (SetValidAddressComponent (address_json_p, "country_code", & (address_p -> ad_country_code_s))) */
+												}		/* if (SetValidAddressComponent (address_json_p, "country_code", & (address_p -> ad_country_code_s))) */
 
-								}		/* if (SetValidAddressComponent (address_json_p, "country", & (address_p -> ad_country_s))) */
+										}		/* if (SetValidAddressComponent (address_json_p, "country", & (address_p -> ad_country_s))) */
 
-						}		/* if (SetValidAddressComponent (address_json_p, "state_district", & (address_p -> ad_county_s))) */
+								}		/* if (SetValidAddressComponent (address_json_p, "state_district", & (address_p -> ad_county_s))) */
 
-				}		/* if (SetValidAddressComponent (address_json_p, "city", & (address_p -> ad_town_s))) */
+						}		/* if (SetValidAddressComponent (address_json_p, "city", & (address_p -> ad_town_s))) */
+
+				}		/* if (SetValidAddressComponent (address_json_p, "street", & (address_p -> ad_street_s))) */
 
 		}		/* if (address_json_p) */
 
