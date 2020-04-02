@@ -471,22 +471,12 @@ bool SetAddressSouthWestCoordinate (Address *address_p, const double64 latitude,
 
 static bool SetCoordinateValue (Coordinate **coord_pp, const double64 latitude, const double64 longitude, const double64 *elevation_p)
 {
-
 	bool success_flag = true;
 
 	if (*coord_pp)
 		{
 			(*coord_pp) -> co_x = latitude;
 			(*coord_pp) -> co_y = longitude;
-
-			if (elevation_p)
-				{
-					success_flag = SetCoordinateElevation (*coord_pp, *elevation_p);
-				}
-			else
-				{
-					ClearCoordinateElevation (*coord_pp);
-				}
 		}
 	else
 		{
@@ -496,6 +486,18 @@ static bool SetCoordinateValue (Coordinate **coord_pp, const double64 latitude, 
 				{
 					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to allocate cooordinate");
 					success_flag = false;
+				}
+		}
+
+	if (success_flag)
+		{
+			if (elevation_p)
+				{
+					success_flag = SetCoordinateElevation (*coord_pp, *elevation_p);
+				}
+			else
+				{
+					ClearCoordinateElevation (*coord_pp);
 				}
 		}
 
