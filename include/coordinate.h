@@ -112,6 +112,16 @@ GRASSROOTS_GEOCODER_API Coordinate *AllocateCoordinate (double64 x, double64 y);
 
 
 /**
+ * Initialise a coordinate as 0,0
+ *
+ * @param coord_p The Coordinate to initialise.
+ * @memberof Coordinate
+ * @ingroup geocoder_library
+ */
+GRASSROOTS_GEOCODER_API void InitCoordinate (Coordinate *coord_p);
+
+
+/**
  * Free a Coordinate.
  *
  * @param coord_p The Coordinate to free.

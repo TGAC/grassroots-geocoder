@@ -27,6 +27,15 @@ Coordinate *AllocateCoordinate (double64 x, double64 y)
 }
 
 
+
+void InitCoordinate (Coordinate *coord_p)
+{
+	coord_p -> co_x = 0.0;
+	coord_p -> co_y = 0.0;
+	coord_p -> co_elevation_p = NULL;
+}
+
+
 void FreeCoordinate (Coordinate *coord_p)
 {
 	FreeMemory (coord_p);

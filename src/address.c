@@ -281,6 +281,8 @@ Address *GetAddressFromJSON (const json_t *address_json_p)
 				{
 					Coordinate coord;
 
+					InitCoordinate (&coord);
+
 					if (SetCoordinateFromCompoundJSON (&coord, location_json_p, AD_CENTRE_LOCATION_S))
 						{
 							if (!SetAddressCentreCoordinate (address_p, coord.co_x,  coord.co_y, NULL))
