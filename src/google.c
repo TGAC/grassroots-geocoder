@@ -40,12 +40,7 @@ static bool RefineLocationDataForGoogle (Address *address_p, const json_t *raw_d
 
 static bool FillInAddressFromGoogleData (Address *address_p, const json_t *google_result_p);
 
-static bool BuildGoogleURLUsingAddressParameter (ByteBuffer *buffer_p, CurlTool *curl_p, const Address * const address_p);
-
 static bool BuildGoogleURLUsingComponentsParameters (ByteBuffer *buffer_p, const Address * const address_p, CurlTool *tool_p);
-
-static int AddEscapedValueToByteBuffer (const char *value_s, ByteBuffer *buffer_p, CurlTool *tool_p, const char *prefix_s);
-
 
 
 bool RunGoogleGeocoder (Address *address_p, const char *geocoder_uri_s)
@@ -102,7 +97,7 @@ bool RunGoogleGeocoder (Address *address_p, const char *geocoder_uri_s)
 
 							if (curl_p)
 								{
-									if (BuildGoogleURLUsingAddressParameter (buffer_p, curl_p, address_p))
+									if (BuildURLUsingAddressParameter (buffer_p, curl_p, address_p, "&address=", ",%20"))
 										{
 											const char *url_s = GetByteBufferData (buffer_p);
 											int res = CallGeocoderWebService (curl_p, url_s, address_p, ParseGoogleResults);
@@ -405,94 +400,6 @@ bool FillInAddressFromGoogleData (Address *address_p, const json_t *google_resul
 
 
 
-static bool BuildGoogleURLUsingAddressParameter (ByteBuffer *buffer_p, CurlTool *curl_p, const Address * const address_p)
-{
-	bool success_flag = false;
-	const char *prefix_s = "&address=";
-	int res;
-
-	/* name */
-	if ((res = AddEscapedValueToByteBuffer (address_p -> ad_name_s, buffer_p, curl_p, prefix_s)) >= 0)
-		{
-			if (res == 1)
-				{
-					prefix_s = ",%20";
-				}
-
-			/* street */
-			if ((res = AddEscapedValueToByteBuffer (address_p -> ad_street_s, buffer_p, curl_p, prefix_s)) >= 0)
-				{
-					if (res == 1)
-						{
-							prefix_s = ",%20";
-						}
-
-					/* town */
-					if ((res = AddEscapedValueToByteBuffer (address_p -> ad_town_s, buffer_p, curl_p, prefix_s)) >= 0)
-						{
-							if (res == 1)
-								{
-									prefix_s = ",%20";
-								}
-
-							/* county */
-							if ((res = AddEscapedValueToByteBuffer (address_p -> ad_county_s, buffer_p, curl_p, prefix_s)) >= 0)
-								{
-									const char *value_s = address_p -> ad_country_s;
-
-									if (res == 1)
-										{
-											prefix_s = ",%20";
-										}
-
-									if (!value_s)
-										{
-											value_s = GetCountryNameFromCode (address_p -> ad_country_code_s);
-
-											PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to get country name for code \"%s\"", address_p -> ad_country_code_s);
-										}
-
-
-									if (value_s)
-										{
-											if (AppendStringsToByteBuffer (buffer_p, prefix_s, value_s, NULL))
-												{
-													success_flag = true;
-												}
-											else
-												{
-													PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to add country name \"%s\" to buffer for REST API Address call", value_s);
-												}
-										}
-
-								}		/* if ((res = AddEscapedValueToByteBuffer (address_p -> ad_county_s, buffer_p, tool_p, prefix_s)) >= 0) */
-							else
-								{
-									PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to add county \"%s\" to buffer for REST API Address call", address_p -> ad_county_s ? address_p -> ad_county_s : "NULL");
-								}
-
-						}		/* if ((res = AddEscapedValueToByteBuffer (address_p -> ad_town_s, buffer_p, tool_p, prefix_s)) >= 0 */
-					else
-						{
-							PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to add town \"%s\" to buffer for REST API Address call", address_p -> ad_town_s ? address_p -> ad_town_s : "NULL");
-						}
-
-
-				}		/* if ((res = AddEscapedValueToByteBuffer (address_p -> ad_street_s, buffer_p, tool_p, prefix_s)) >= 0) */
-			else
-				{
-					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to add street \"%s\" to buffer for REST API Address call", address_p -> ad_street_s ? address_p -> ad_street_s : "NULL");
-				}
-
-		}		/* if ((res = AddEscapedValueToByteBuffer (address_p -> ad_name_s, buffer_p, tool_p, prefix_s)) >= 0) */
-	else
-		{
-			PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to add name \"%s\" to buffer for REST API Address call", address_p -> ad_name_s ? address_p -> ad_name_s : "NULL");
-		}
-
-
-	return success_flag;
-}
 
 
 static bool BuildGoogleURLUsingComponentsParameters (ByteBuffer *buffer_p, const Address * const address_p, CurlTool *tool_p)
@@ -546,32 +453,3 @@ static bool BuildGoogleURLUsingComponentsParameters (ByteBuffer *buffer_p, const
 
 
 
-static int AddEscapedValueToByteBuffer (const char *value_s, ByteBuffer *buffer_p, CurlTool *tool_p, const char *prefix_s)
-{
-	int res = -1;
-
-	if (value_s)
-		{
-			char *escaped_value_s = GetURLEscapedString (tool_p, value_s);
-
-			if (escaped_value_s)
-				{
-					if (prefix_s)
-						{
-							res = (AppendStringsToByteBuffer (buffer_p, prefix_s, escaped_value_s, NULL)) ? 1 : -1;
-						}		/* if (prefix_s) */
-					else
-						{
-							res = (AppendStringToByteBuffer (buffer_p, escaped_value_s)) ? 1 : -1;
-						}
-
-					FreeURLEscapedString (escaped_value_s);
-				}
-		}		/* if (value_s) */
-	else
-		{
-			res = 0;
-		}
-
-	return res;
-}

@@ -109,6 +109,11 @@ GRASSROOTS_GEOCODER_LOCAL bool DetermineGPSLocationForAddressByLocationIQ (Addre
 GRASSROOTS_GEOCODER_LOCAL int CallGeocoderWebService (CurlTool *curl_tool_p, const char *url_s, Address *address_p, int (*parse_results_fn) (Address *address_p, const json_t *web_service_results_p));
 
 
+GRASSROOTS_GEOCODER_LOCAL int AddEscapedValueToByteBuffer (const char *value_s, ByteBuffer *buffer_p, CurlTool *tool_p, const char *prefix_s);
+
+
+GRASSROOTS_GEOCODER_LOCAL bool BuildURLUsingAddressParameter (ByteBuffer *buffer_p, CurlTool *curl_p, const Address * const address_p, const char *api_call_s, const char *sep_s);
+
 
 #ifdef __cplusplus
 }
