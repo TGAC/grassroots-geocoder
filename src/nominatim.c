@@ -432,7 +432,7 @@ static int ParseNominatimResults (Address *address_p, const json_t *web_service_
 														}		/* if (SetAddressCentreCoordinate (address_p, latitude, longitude, NULL)) */
 													else
 														{
-															PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "SetAddressCentreCoordinate failed for \"%s\" to %lf,%lf", address_p -> ad_name_s, latitude, longitude);
+															PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "SetAddressCentreCoordinate failed for \"%s\" to %lf,%lf", address_p -> ad_name_s, latitude, longitude);
 														}
 
 												}		/* if (GetJSONStringAsDouble (result_p, "lon", &longitude)) */
