@@ -41,9 +41,7 @@ ifeq ($(BUILD),release)
 	CFLAGS 	+= -O3 -s
  	LDFLAGS += -s
 else
-#	CFLAGS 	+= -g
-	CFLAGS 	+= -g -pg
-	LDFLAGS += -pg
+	CFLAGS 	+= -g
 	CPPFLAGS += -D_DEBUG
 endif
 	
