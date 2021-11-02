@@ -285,7 +285,7 @@ Address *GetAddressFromJSON (const json_t *address_json_p)
 
 					if (SetCoordinateFromCompoundJSON (&coord, location_json_p, AD_CENTRE_LOCATION_S))
 						{
-							if (!SetAddressCentreCoordinate (address_p, coord.co_x,  coord.co_y, NULL))
+							if (!SetAddressCentreCoordinate (address_p, coord.co_x,  coord.co_y, coord.co_elevation_p))
 								{
 									char *address_s = GetAddressAsString (address_p);
 
@@ -299,7 +299,7 @@ Address *GetAddressFromJSON (const json_t *address_json_p)
 
 					if (SetCoordinateFromCompoundJSON (&coord, location_json_p, AD_NORTH_EAST_LOCATION_S))
 						{
-							if (!SetAddressNorthEastCoordinate (address_p, coord.co_x,  coord.co_y, NULL))
+							if (!SetAddressNorthEastCoordinate (address_p, coord.co_x,  coord.co_y, coord.co_elevation_p))
 								{
 									char *address_s = GetAddressAsString (address_p);
 
@@ -314,7 +314,7 @@ Address *GetAddressFromJSON (const json_t *address_json_p)
 
 					if (SetCoordinateFromCompoundJSON (&coord, location_json_p, AD_SOUTH_WEST_LOCATION_S))
 						{
-							if (!SetAddressSouthWestCoordinate (address_p, coord.co_x,  coord.co_y, NULL))
+							if (!SetAddressSouthWestCoordinate (address_p, coord.co_x,  coord.co_y, coord.co_elevation_p))
 								{
 									char *address_s = GetAddressAsString (address_p);
 
@@ -326,7 +326,7 @@ Address *GetAddressFromJSON (const json_t *address_json_p)
 								}
 						}		/* if (SetCoordinateFromCompoundJSON (&coord, location_json_p, AD_SOUTH_WEST_LOCATION_S)) */
 
-
+					ClearCoordinateElevation (&coord);
 				}		/* if (location_json_p) */
 
 			return address_p;

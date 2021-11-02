@@ -38,6 +38,7 @@ void InitCoordinate (Coordinate *coord_p)
 
 void FreeCoordinate (Coordinate *coord_p)
 {
+	ClearCoordinateElevation (coord_p);
 	FreeMemory (coord_p);
 }
 
@@ -113,8 +114,12 @@ bool SetCoordinateFromJSON (Coordinate *coord_p, const json_t *value_p)
 									PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to set elevation to " DOUBLE64_FMT, elevation);
 								}
 						}
+					else
+						{
+							success_flag = true;
+							ClearCoordinateElevation (coord_p);
+						}
 
-					success_flag = true;
 				}
 
 		}		/* if (location_p) */
