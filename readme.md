@@ -34,33 +34,34 @@ to install the library into the Grassroots system where it will be available for
 ## Configuration options
 
 
-The configuration options for this library are specified in the global configuration file ```grassroots.config``` in the value associated with the ```geocoder``` key. It has an array of geocoder configuration details specified by the ```geocoders``` key. Each one of these consists of two entries:
+The configuration options for this library are specified with the ```geocoder``` key. It has an array of geocoder configuration details specified by the geocoders key. Each one of these consists of two entries:
 
- * **name**: The name to use for this geocoder. Currently there are two available options; 
-     * **google**: 
-     * **opencage**: 
+ * **name**: The name to use for this geocoder. Currently there are three available options; [google](https://developers.google.com/maps/documentation/geocoding/overview), [opencage](https://opencagedata.com/api) and [nominatim](https://nominatim.org/).
 
- * **uri**: This is the web address to call to get the geocoding details. These *uri* values  are vendor-dependent and you will need to get an API key from the appropriate vendor and assign its value to the key parameter in this address.
-     * **google**: Go to [Google Geocoding API](https://developers.google.com/maps/documentation/geocoding/get-api-key "") documentation sto register for an API key.
-     * **opencage**: Go to [OpenCage Geocoder API](https://opencagedata.com/api "") documentation to register for an API key.
+ * **geocode_url**: This is the web address to call when you have address details and wish to determine the corresponding GPS coordinates. These uri values are vendor-dependent and you will need to get an API key from the appropriate vendor and assign its value to the key parameter in this address.
+       
+ * **reverse_geocode_url**: This is the web address to call to when you have some GPS coordinates and wish to discover the corresponding address. These uri values are vendor-dependent and you will need to get an API key from the appropriate vendor and assign its value to the key parameter in this address.
 
-
-The other key is ```default_geocoder``` and the associated value needs to be one of the names of the entries in the ```geocoders``` array. 
+The other key is ```default_geocoder``` and the associated value needs to be one of the names of the entries in the ```geocoders``` array.
 
 An example configuration section is shown below with ```<api key>``` being where your appropriate vendor key should go.
 
 ~~~{json}
 {
-  "geocoder": {
-	"default_geocoder": "google",
-	"geocoders": [{
-		"name": "google",
-		"uri": "https://maps.googleapis.com/maps/api/geocode/json?sensor=false&key=<api key>"
-	}, {
-		"name": "opencage",
-		"uri": "http://api.opencagedata.com/geocode/v1/json?pretty=1&key=<api key>"
-	}],
-  }
+	"geocoder": {
+		"default_geocoder": "nominatim",
+		"geocoders": [{
+			"name": "nominatim",
+			"reverse_geocode_url": "https://nominatim.openstreetmap.org/reverse",
+			"geocode_url": "https://nominatim.openstreetmap.org/search?format=json"
+		}, {
+			"name": "google",
+			"geocode_url": "https://maps.googleapis.com/maps/api/geocode/json?sensor=false&key=my_google_key"
+		}, {
+			"name": "opencage",
+			"geocode_url": "https://api.opencagedata.com/geocode/v1/json?key=my_opencage_keyd&pretty=1&q="
+		}]
+	}
 ...
 
 }
@@ -76,10 +77,10 @@ So, for example, if your Google Geocoding API Key is *123Google* and your OpenCa
 	"default_geocoder": "google",
 	"geocoders": [{
 		"name": "google",
-		"uri": "https://maps.googleapis.com/maps/api/geocode/json?sensor=false&key=123Google"
+		"geocode_url": "https://maps.googleapis.com/maps/api/geocode/json?sensor=false&key=123Google"
 	}, {
 		"name": "opencage",
-		"uri": "http://api.opencagedata.com/geocode/v1/json?pretty=1&key=456OpenCage"
+		"geocode_url": "http://api.opencagedata.com/geocode/v1/json?pretty=1&key=456OpenCage"
 	}],
   }
 ...
