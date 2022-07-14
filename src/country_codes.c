@@ -813,7 +813,7 @@ const char *GetCountryNameFromCode (const char * const country_code_s)
 
 	if (country_p)
 		{
-			code_s = country_p -> cc_code_s;
+			code_s = country_p -> cc_name_s;
 		}
 
 	return code_s;
@@ -857,10 +857,10 @@ static int CompareCountriesByName (const void *v0_p, const void  *v1_p)
 
 static int CompareCountryCodeStrings (const void *v0_p, const void  *v1_p)
 {
-	const char * const country0_s = (const char * const) v0_p;
-	const char * const country1_s = * (const char ** const) v1_p;
+	const CountryCode * const country0_p = (const CountryCode * const) v0_p;
+	const CountryCode * const country1_p = (const CountryCode * const) v1_p;
 
-	return Stricmp (country0_s, country1_s);
+	return Stricmp (country0_p -> cc_code_s, country1_p -> cc_code_s);
 }
 
 

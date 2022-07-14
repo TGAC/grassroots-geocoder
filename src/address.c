@@ -21,18 +21,8 @@
 #include "json_util.h"
 
 
-/*
- * These are the field names for the schema.org PostalAddress
- *
- * https://schema.org/PostalAddress
- */
+
 static const char * const S_POSTAL_ADDRESS_S = "PostalAddress";
-static const char * const S_POSTAL_ADDRESS_NAME_S = "name";
-static const char * const S_POSTAL_ADDRESS_STREET__S = "streetAddress";
-static const char * const S_POSTAL_ADDRESS_LOCALITY_S = "addressLocality";
-static const char * const S_POSTAL_ADDRESS_REGION_S = "addressRegion";
-static const char * const S_POSTAL_ADDRESS_COUNTRY_S = "addressCountry";
-static const char * const S_POSTAL_ADDRESS_POSTCODE_S = "postalCode";
 
 
 static bool AddValidJSONField (json_t *json_p, const char *key_s, const char *value_s);
@@ -351,32 +341,32 @@ bool ParseAddressForSchemaOrg (const Address *address_p, json_t *values_p, const
 				{
 					if (json_object_set_new (postal_address_p, "@type", json_string (S_POSTAL_ADDRESS_S)) == 0)
 						{
-							if (AddValidJSONField (postal_address_p, S_POSTAL_ADDRESS_NAME_S, address_p -> ad_name_s))
+							if (AddValidJSONField (postal_address_p, AD_COUNTRY_S, address_p -> ad_name_s))
 								{
 									success_flag = true;
 								}
 
-							if (AddValidJSONField (postal_address_p, S_POSTAL_ADDRESS_STREET__S, address_p -> ad_street_s))
+							if (AddValidJSONField (postal_address_p, AD_STREET_S, address_p -> ad_street_s))
 								{
 									success_flag = true;
 								}
 
-							if (AddValidJSONField (postal_address_p, S_POSTAL_ADDRESS_LOCALITY_S, address_p -> ad_town_s))
+							if (AddValidJSONField (postal_address_p, AD_TOWN_S, address_p -> ad_town_s))
 								{
 									success_flag = true;
 								}
 
-							if (AddValidJSONField (postal_address_p, S_POSTAL_ADDRESS_REGION_S, address_p -> ad_county_s))
+							if (AddValidJSONField (postal_address_p, AD_COUNTY_S, address_p -> ad_county_s))
 								{
 									success_flag = true;
 								}
 
-							if (AddValidJSONField (postal_address_p, S_POSTAL_ADDRESS_COUNTRY_S, address_p -> ad_country_s))
+							if (AddValidJSONField (postal_address_p, AD_COUNTRY_S, address_p -> ad_country_s))
 								{
 									success_flag = true;
 								}
 
-							if (AddValidJSONField (postal_address_p, S_POSTAL_ADDRESS_POSTCODE_S, address_p -> ad_postcode_s))
+							if (AddValidJSONField (postal_address_p, AD_POSTCODE_S, address_p -> ad_postcode_s))
 								{
 									success_flag = true;
 								}
@@ -417,12 +407,12 @@ Address *ParseSchemaOrgAddress (const json_t *values_p, const char *address_key_
 					if (strcmp (type_s, S_POSTAL_ADDRESS_S) == 0)
 						{
 							Address *address_p = NULL;
-							const char *name_s = GetJSONString (postal_address_json_p, S_POSTAL_ADDRESS_NAME_S);
-							const char *street_s = GetJSONString (postal_address_json_p, S_POSTAL_ADDRESS_STREET__S);
-							const char *town_s = GetJSONString (postal_address_json_p, S_POSTAL_ADDRESS_LOCALITY_S);
-							const char *county_s = GetJSONString (postal_address_json_p, S_POSTAL_ADDRESS_REGION_S);
-							const char *country_s = GetJSONString (postal_address_json_p, S_POSTAL_ADDRESS_COUNTRY_S);
-							const char *postcode_s = GetJSONString (postal_address_json_p, S_POSTAL_ADDRESS_POSTCODE_S);
+							const char *name_s = GetJSONString (postal_address_json_p, AD_NAME_S);
+							const char *street_s = GetJSONString (postal_address_json_p, AD_STREET_S);
+							const char *town_s = GetJSONString (postal_address_json_p, AD_TOWN_S);
+							const char *county_s = GetJSONString (postal_address_json_p, AD_COUNTY_S);
+							const char *country_s = GetJSONString (postal_address_json_p, AD_COUNTRY_S);
+							const char *postcode_s = GetJSONString (postal_address_json_p, AD_POSTCODE_S);
 							const char *country_code_s = NULL;
 
 							if (country_s)

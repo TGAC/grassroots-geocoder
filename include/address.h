@@ -106,15 +106,19 @@ typedef struct Address
 #endif 		/* #ifndef DOXYGEN_SHOULD_SKIP_THIS */
 
 
+
+
+
+
+
 ADDRESS_PREFIX const char *AD_ADDRESS_S ADDRESS_VAL ("Address");
 
 /**
- * The key for specifying an object containing the GPS coordinates
- * where the sample was collected.
+ * The key for specifying an object containing the name of an address
  *
  * @ingroup geocoder_library
  */
-ADDRESS_PREFIX const char *AD_GPS_S ADDRESS_VAL ("GPS");
+ADDRESS_PREFIX const char *AD_NAME_S ADDRESS_VAL ("name");
 
 
 /**
@@ -123,7 +127,7 @@ ADDRESS_PREFIX const char *AD_GPS_S ADDRESS_VAL ("GPS");
  *
  * @ingroup geocoder_library
  */
-ADDRESS_PREFIX const char *AD_POSTCODE_S ADDRESS_VAL ("Postal code");
+ADDRESS_PREFIX const char *AD_POSTCODE_S ADDRESS_VAL ("postalCode");
 
 
 /**
@@ -133,7 +137,7 @@ ADDRESS_PREFIX const char *AD_POSTCODE_S ADDRESS_VAL ("Postal code");
  *
  * @ingroup geocoder_library
  */
-ADDRESS_PREFIX const char *AD_STREET_S ADDRESS_VAL ("Street");
+ADDRESS_PREFIX const char *AD_STREET_S ADDRESS_VAL ("streetAddress");
 
 /**
  * The key for specifying an object containing the town
@@ -141,7 +145,7 @@ ADDRESS_PREFIX const char *AD_STREET_S ADDRESS_VAL ("Street");
  *
  * @ingroup geocoder_library
  */
-ADDRESS_PREFIX const char *AD_TOWN_S ADDRESS_VAL ("Town");
+ADDRESS_PREFIX const char *AD_TOWN_S ADDRESS_VAL ("addressLocality");
 
 
 /**
@@ -150,7 +154,7 @@ ADDRESS_PREFIX const char *AD_TOWN_S ADDRESS_VAL ("Town");
  *
  * @ingroup geocoder_library
  */
-ADDRESS_PREFIX const char *AD_COUNTY_S ADDRESS_VAL ("County");
+ADDRESS_PREFIX const char *AD_COUNTY_S ADDRESS_VAL ("addressRegion");
 
 
 /**
@@ -159,7 +163,7 @@ ADDRESS_PREFIX const char *AD_COUNTY_S ADDRESS_VAL ("County");
  *
  * @ingroup geocoder_library
  */
-ADDRESS_PREFIX const char *AD_COUNTRY_S ADDRESS_VAL ("Country");
+ADDRESS_PREFIX const char *AD_COUNTRY_S ADDRESS_VAL ("addressCountry");
 
 
 
