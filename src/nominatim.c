@@ -56,7 +56,7 @@ bool RunNominatimGeocoder (Address *address_p, const char *geocoder_uri_s)
 		{
 			if (AppendStringToByteBuffer (buffer_p, geocoder_uri_s))
 				{
-					CurlTool *curl_p = AllocateCurlTool (CM_MEMORY);
+					CurlTool *curl_p = AllocateMemoryCurlTool (0);
 
 					if (curl_p)
 						{
@@ -136,7 +136,7 @@ bool RunNominatimReverseGeocoder (Address *address_p, const char *reverse_geocod
 														{
 															if (AppendStringToByteBuffer (buffer_p, "&addressdetails=1"))
 																{
-																	CurlTool *curl_p = AllocateCurlTool (CM_MEMORY);
+																	CurlTool *curl_p = AllocateMemoryCurlTool (0);
 
 																	if (curl_p)
 																		{

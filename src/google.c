@@ -93,7 +93,7 @@ bool RunGoogleGeocoder (Address *address_p, const char *geocoder_uri_s)
 				{
 					if (AppendStringToByteBuffer (buffer_p, geocoder_uri_s))
 						{
-							CurlTool *curl_p = AllocateCurlTool (CM_MEMORY);
+							CurlTool *curl_p = AllocateMemoryCurlTool (0);
 
 							if (curl_p)
 								{
@@ -159,7 +159,7 @@ bool RunGoogleReverseGeocoder (Address *address_p, const char *geocoder_uri_s)
 
 			if (buffer_p)
 				{
-					CurlTool *curl_tool_p = AllocateCurlTool (CM_MEMORY);
+					CurlTool *curl_tool_p = AllocateMemoryCurlTool (0);
 
 					if (curl_tool_p)
 						{

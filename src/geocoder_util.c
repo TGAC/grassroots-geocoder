@@ -378,7 +378,7 @@ bool DetermineGPSLocationForAddressByOpencage (Address *address_p, const char *g
 
 			if (address_s)
 				{
-					CurlTool *curl_tool_p = AllocateCurlTool (CM_MEMORY);
+					CurlTool *curl_tool_p = AllocateMemoryCurlTool (0);
 
 					if (curl_tool_p)
 						{
