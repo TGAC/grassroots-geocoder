@@ -341,7 +341,7 @@ bool ParseAddressForSchemaOrg (const Address *address_p, json_t *values_p, const
 				{
 					if (json_object_set_new (postal_address_p, "@type", json_string (S_POSTAL_ADDRESS_S)) == 0)
 						{
-							if (AddValidJSONField (postal_address_p, AD_COUNTRY_S, address_p -> ad_name_s))
+							if (AddValidJSONField (postal_address_p, AD_NAME_S, address_p -> ad_name_s))
 								{
 									success_flag = true;
 								}
