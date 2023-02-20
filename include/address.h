@@ -99,7 +99,7 @@ typedef struct Address
 	#define ADDRESS_PREFIX GRASSROOTS_GEOCODER_API
 	#define ADDRESS_VAL(x)	= x
 #else
-	#define ADDRESS_PREFIX extern
+	#define ADDRESS_PREFIX GRASSROOTS_GEOCODER_API
 	#define ADDRESS_VAL(x)
 #endif
 
