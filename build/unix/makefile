@@ -1,10 +1,11 @@
 NAME := grassroots_geocoder
-DIR_BUILD :=  $(realpath $(dir $(lastword $(MAKEFILE_LIST))))
-DIR_SRC := $(realpath $(DIR_BUILD)/../../src)
-DIR_INCLUDE := $(realpath $(DIR_BUILD)/../../include)
+DIR_BUILD :=  $(realpath $(dir $(lastword $(MAKEFILE_LIST)))/$(PLATFORM))
+DIR_SRC := $(realpath $(DIR_BUILD)/../../../src)
+DIR_INCLUDE := $(realpath $(DIR_BUILD)/../../../include)
 
 ifeq ($(DIR_BUILD_CONFIG),)
-export DIR_BUILD_CONFIG = $(realpath $(DIR_BUILD)/../../../../build-config/linux)
+export DIR_BUILD_CONFIG = $(realpath $(DIR_BUILD)/../../../../../build-config/unix/)
+#export DIR_BUILD_CONFIG = /Users/tyrrells/Projects/grassroots/build-config/unix/
 endif
 
 include $(DIR_BUILD_CONFIG)/project.properties
@@ -50,7 +51,7 @@ else
 endif
 	
 
-CPPFLAGS += -DGRASSROOTS_GEOCODER_LIBRARY_EXPORTS -DUNIX 
+CPPFLAGS += -DGRASSROOTS_GEOCODER_LIBRARY_EXPORTS 
 
 LDFLAGS += -ldl \
 	-L$(DIR_JANSSON_LIB) -ljansson \
