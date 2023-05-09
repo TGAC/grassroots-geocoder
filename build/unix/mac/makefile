@@ -1,4 +1,4 @@
-PLATFORM := mac
+PLATFORM = mac
 CFLAGS += -DMAC
 
 include ../makefile
