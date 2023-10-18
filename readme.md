@@ -1,4 +1,4 @@
-﻿# Geocoder library {#geocoder_guide}
+﻿# Geocoder library 
 
 The Geocoder library is for getting GPS coordinates from address details such as town, county, country, *etc.* and vice versa.
 
@@ -6,14 +6,22 @@ The Geocoder library is for getting GPS coordinates from address details such as
 
 To build this library, you need the [grassroots core](https://github.com/TGAC/grassroots-core) and [grassroots build config](https://github.com/TGAC/grassroots-build-config) modules.
 
-The files to build the Geocoder library are in the ```build/<platform>``` directory. 
+The files to build the Geocoder library are in the `build` directory. 
 
-### Linux
+### Linux and Mac
 
-Enter the build directory 
+Enter the build directory for your your given platform which is inside the `build/unix/<platform>` 
+
+For example, under linux:
 
 ```
-cd build/linux
+cd build/unix/linux
+```
+
+whereas on MacOS:
+
+````
+cd build/unix/mac
 ```
 
 then
@@ -31,10 +39,14 @@ make install
 to install the library into the Grassroots system where it will be available for use immediately.
 
 
+### Windows
+
+Under Windows, there is a Visual Studio project in the `build/windows` folder that allows you to build the geocoder library.
+
 ## Configuration options
 
 
-The configuration options for this library are specified with the ```geocoder``` key. It has an array of geocoder configuration details specified by the geocoders key. Each one of these consists of two entries:
+The configuration options for this library are specified with the `geocoder` key within teh global Grassroots configuration file. It has an array of geocoder configuration details specified by the geocoders key. Each one of these consists of two entries:
 
  * **name**: The name to use for this geocoder. Currently there are three available options; [google](https://developers.google.com/maps/documentation/geocoding/overview), [opencage](https://opencagedata.com/api) and [nominatim](https://nominatim.org/).
 
@@ -42,9 +54,9 @@ The configuration options for this library are specified with the ```geocoder```
        
  * **reverse_geocode_url**: This is the web address to call to when you have some GPS coordinates and wish to discover the corresponding address. These uri values are vendor-dependent and you will need to get an API key from the appropriate vendor and assign its value to the key parameter in this address.
 
-The other key is ```default_geocoder``` and the associated value needs to be one of the names of the entries in the ```geocoders``` array.
+The other key is `default_geocoder` which specifies which and the associated value needs to be one of the names of the entries in the `geocoders` array.
 
-An example configuration section is shown below with ```<api key>``` being where your appropriate vendor key should go.
+An example configuration section is shown below with `<api key>` being where your appropriate vendor key should go.
 
 ~~~{json}
 {
