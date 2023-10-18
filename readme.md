@@ -20,7 +20,7 @@ cd build/unix/linux
 
 whereas on MacOS:
 
-````
+```
 cd build/unix/mac
 ```
 
