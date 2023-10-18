@@ -43,6 +43,7 @@ to install the library into the Grassroots system where it will be available for
 
 Under Windows, there is a Visual Studio project in the `build/windows` folder that allows you to build the geocoder library.
 
+
 ## Configuration options
 
 
